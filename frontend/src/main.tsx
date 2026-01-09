@@ -10,7 +10,7 @@ import NotFound from "./components/NotFound";
 
 import ProtectedRoutes from "./components/ProtectedRoutes"; 
 import App from "./components/App";
-import CreditsInfo from "./components/features/credits/CreditsInfo";
+import CreditsInfo from "./components/sections/credits/CreditsInfo";
 
 
 createRoot(document.getElementById("root")!).render(
