@@ -1,0 +1,8 @@
+/* .btn, .card, .input, etc. */
+
+@layer components {
+.btn { @apply inline-flex items-center px-4 py-2.5 rounded-xl font-semibold; }
+.btn-primary { @apply bg-gradient-to-r from-primary-500 to-primary-600 text-white; }
+.card { @apply bg-dark-800 border border-dark-700 rounded-2xl; }
+.input { @apply w-full px-4 py-3 rounded-xl bg-dark-800 border border-dark-700; }
+}

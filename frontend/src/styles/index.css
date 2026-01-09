@@ -1,0 +1,8 @@
+/* Entry point - imports all */
+@import './globals.css';
+@import './components.css';
+@import './animations.css';
+
+@layer base {
+body { @apply bg-dark-900 text-dark-50 font-sans; }
+}
