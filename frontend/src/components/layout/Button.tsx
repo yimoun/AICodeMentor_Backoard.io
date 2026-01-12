@@ -2,10 +2,10 @@ import React from 'react';
 import { CircularProgress } from '@mui/material';
 import { StyledButton, ButtonBadge } from '../../styles/ButtonStyles';
 
-type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'social' ;
+type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'social';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps {
   /** Variante du bouton */
   variant?: ButtonVariant;
   /** Taille du bouton */
@@ -24,10 +24,17 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   /** URL si le bouton est un lien */
   href?: string;
+  /** Type du bouton */
+  type?: 'button' | 'submit' | 'reset';
+  /** Bouton désactivé */
+  disabled?: boolean;
   /** Callback au clic */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  /** Classe CSS */
+  className?: string;
+  /** Styles inline */
+  style?: React.CSSProperties;
 }
-
 
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
@@ -40,8 +47,10 @@ const Button: React.FC<ButtonProps> = ({
   children,
   disabled,
   href,
+  type = 'button',
   onClick,
-  ...props
+  className,
+  style,
 }) => {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (isLoading || disabled) {
@@ -53,14 +62,18 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <StyledButton
+      // @ts-ignore - Custom props for StyledButton
       variant={variant}
+       // @ts-ignore - Custom props for StyledButton
       size={size}
       fullWidth={fullWidth}
       disabled={disabled || isLoading}
       onClick={handleClick}
       href={href}
+      type={type}
       component={href ? 'a' : 'button'}
-      {...props}
+      className={className}
+      style={style}
     >
       {isLoading ? (
         <CircularProgress
@@ -81,4 +94,5 @@ const Button: React.FC<ButtonProps> = ({
   );
 };
 
+export { Button };
 export default Button;

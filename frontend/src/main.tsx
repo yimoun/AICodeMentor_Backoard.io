@@ -1,17 +1,13 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { Route, Routes, BrowserRouter } from "react-router-dom";
-// import AuthContainer from "./components/auth/AuthContainer";
-// import LoginView from "./components/auth/LoginView";
-// import SignUpView from "./components/auth/SignUpView";
-// import UserEditView from "./components/user/UserEditView";
-// import PasswordEditView from "./components/user/PasswordEditView";
 import NotFound from "./components/NotFound";
-
 import ProtectedRoutes from "./components/ProtectedRoutes"; 
 import App from "./components/App";
 import CreditsInfo from "./components/sections/credits/CreditsInfo";
-
+import LoginPage from "./components/auth/LoginPage";
+import SignupPage from "./components/auth/SignupPage";
+import ForgotPasswordPage from "./components/auth/ForgotPasswordPage";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -25,10 +21,10 @@ createRoot(document.getElementById("root")!).render(
           <Route path="" element={<CreditsInfo />} />
         </Route>
 
-        {/* <Route path="" element={<AuthContainer />}>
-          <Route path="login" element={<LoginView />} />
-          <Route path="signup" element={<SignUpView />} />
-        </Route> */}
+        {/* Routes d'authentification */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         {/* <Route path="logout" element={<Logout />} /> */}
         <Route path="*" element={<NotFound />} />
