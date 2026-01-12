@@ -1,10 +1,9 @@
 
-
 import { styled } from '@mui/material/styles';
 import { Box, Typography, Chip } from '@mui/material';
 
 
-export const HeroContainer = styled(Box)(({ theme }) => ({
+export const IntroContainer = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: '1fr 1fr',
   gap: theme.spacing(8),
@@ -25,14 +24,14 @@ export const HeroContainer = styled(Box)(({ theme }) => ({
 }));
 
 
-export const HeroContent = styled(Box)(({ theme }) => ({
+export const IntoContent = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     order: 2,
   },
 }));
 
 
-export const HeroBadge = styled(Chip)(({ theme }) => ({
+export const Badge = styled(Chip)(({ theme }) => ({
   display: 'inline-flex',
   alignItems: 'center',
   gap: theme.spacing(0.5),
@@ -57,7 +56,7 @@ export const HeroBadge = styled(Chip)(({ theme }) => ({
 }));
 
 
-export const HeroTitle = styled(Typography)(({ theme }) => ({
+export const IntroTitle = styled(Typography)(({ theme }) => ({
   fontSize: '3rem',
   fontWeight: 800,
   lineHeight: 1.1,
@@ -74,12 +73,12 @@ export const HeroTitle = styled(Typography)(({ theme }) => ({
 }));
 
 
-export const HeroHighlight = styled('span')(({ theme }) => ({
-  color: theme.palette.primary.main,
+export const IntroTitleHighlight = styled('span')(({ }) => ({
+  color: '#ED1B2F',
 }));
 
 
-export const HeroSubtitle = styled(Typography)(({ theme }) => ({
+export const IntroSubtitle = styled(Typography)(({ theme }) => ({
   fontSize: '1.125rem',
   color: theme.palette.grey[600],
   marginBottom: theme.spacing(4),
@@ -114,10 +113,8 @@ export const HeroCta = styled(Box)(({ theme }) => ({
   },
 }));
 
-/**
- * Container des statistiques
- */
-export const HeroStats = styled(Box)(({ theme }) => ({
+
+export const IntroStats = styled(Box)(({ theme }) => ({
   display: 'flex',
   gap: theme.spacing(6),
   
@@ -130,20 +127,16 @@ export const HeroStats = styled(Box)(({ theme }) => ({
   },
 }));
 
-/**
- * Item de statistique individuel
- */
+
 export const StatItem = styled(Box)({
   textAlign: 'center',
 });
 
-/**
- * Nombre de la statistique
- */
+
 export const StatNumber = styled(Typography)(({ theme }) => ({
   fontSize: '2rem',
   fontWeight: 800,
-  color: theme.palette.primary.main,
+  color: '#ED1B2F',
   lineHeight: 1,
   
   [theme.breakpoints.down('sm')]: {
@@ -164,7 +157,7 @@ export const StatLabel = styled(Typography)(({ theme }) => ({
 }));
 
 
-export const HeroVisual = styled(Box)(({ theme }) => ({
+export const IntroVisual = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     order: 1,
     maxWidth: 500,
@@ -222,9 +215,7 @@ export const ChatDot = styled('span')<{ color?: 'red' | 'yellow' | 'green' }>(
   })
 );
 
-/**
- * Container des messages
- */
+
 export const ChatMessages = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   display: 'flex',
@@ -248,7 +239,7 @@ export const Message = styled(Box, {
   
   ...(sender === 'user' && {
     alignSelf: 'flex-end',
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: '#ED1B2F',
     color: theme.palette.primary.contrastText,
     borderBottomRightRadius: (typeof theme.shape.borderRadius === 'number' ? theme.shape.borderRadius : 4) / 2,
   }),

@@ -49,6 +49,17 @@ export const Button: React.FC<ButtonProps> = ({
         isLoading && 'opacity-70',
         className
       )}
+  style={{
+    backgroundColor: "#ED1B2F",
+    color: "#fff",
+    border: "2px solid #ED1B2F",
+    borderRadius: "8px",
+    textTransform: 'none',
+    fontWeight: 600,
+    fontSize: '0.875rem',
+    padding: '8px 20px',
+    boxShadow: 'none',
+  }}
       disabled={isLoading}
       {...props}
     >

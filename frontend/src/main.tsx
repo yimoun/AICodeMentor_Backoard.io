@@ -4,7 +4,7 @@ import { Route, Routes, BrowserRouter } from "react-router-dom";
 import NotFound from "./components/NotFound";
 import ProtectedRoutes from "./components/ProtectedRoutes"; 
 import App from "./components/App";
-import CreditsInfo from "./components/sections/credits/CreditsInfo";
+import HomePage from "./pages/HomePage";
 import LoginPage from "./components/auth/LoginPage";
 import SignupPage from "./components/auth/SignupPage";
 import ForgotPasswordPage from "./components/auth/ForgotPasswordPage";
@@ -18,7 +18,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="user-edit/me" element={<UserEditView />} />
             <Route path="password-edit/me" element={<PasswordEditView />} />
           </Route> */}
-          <Route path="" element={<CreditsInfo />} />
+          <Route path="" element={<HomePage />} />
         </Route>
 
         {/* Routes d'authentification */}
