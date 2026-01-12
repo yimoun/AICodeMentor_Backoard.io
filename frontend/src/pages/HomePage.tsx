@@ -3,8 +3,8 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import Intro from '../components/sections/Intro';
-import Features from '../components/features/Features';
-import Pricing from '../components/features/Pricing';
+import Features from '../components/sections/features/Features';
+import Pricing from '../components/sections/pricing/Pricing';
 
 /**
  * Page d'accueil complète avec toutes les sections

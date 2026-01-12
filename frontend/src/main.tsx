@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./components/auth/LoginPage";
 import SignupPage from "./components/auth/SignupPage";
 import ForgotPasswordPage from "./components/auth/ForgotPasswordPage";
+import ChatPage from "./pages/ChatPage";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="password-edit/me" element={<PasswordEditView />} />
           </Route> */}
           <Route path="" element={<HomePage />} />
+          <Route path="chat" element={<ChatPage />} />
         </Route>
 
         {/* Routes d'authentification */}

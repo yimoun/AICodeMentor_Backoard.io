@@ -1,0 +1,15 @@
+ChatPage
+└── ChatLayoutContainer
+    ├── ChatSidebar
+    │   ├── UserInfo
+    │   ├── CreditsWidget
+    │   ├── SidebarNav (NavItem)
+    │   ├── SkillsProgress
+    │   └── StreakWidget
+    │
+    └── ChatMain
+        ├── ChatHeaderBar
+        ├── MessagesContainer
+        │   └── Message[]
+        │       └── CodeBlock[]
+        └── ChatInput

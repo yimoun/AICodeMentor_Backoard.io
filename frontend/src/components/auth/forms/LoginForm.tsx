@@ -58,7 +58,7 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({
   onSuccess,
   onError,
-  redirectTo = '/dashboard',
+  redirectTo = '/chat',
   title = 'Bon retour !',
   subtitle = 'Continuez votre apprentissage',
   brandIcon = '🎓',
@@ -94,6 +94,9 @@ const LoginForm: React.FC<LoginFormProps> = ({
       
       // Simulation d'appel API
       await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // //à changer plus tard
+      // navigate(redirectTo);
 
       // Succès
       if (onSuccess) {

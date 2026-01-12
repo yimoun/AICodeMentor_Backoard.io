@@ -11,7 +11,7 @@ import {
   FeatureDescription,
   FeatureTag,
   FeatureTagOutline,
-} from '../../styles/FeaturesStyles';
+} from '../../../styles/FeaturesStyles';
 
 
 export interface FeatureItem {
