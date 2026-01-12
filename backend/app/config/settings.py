@@ -112,7 +112,7 @@ class Settings(BaseSettings):
     # GOOGLE OAUTH
     # ============================================================
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID")
-    GOOGLE_CLIENT_SECRET: str = os.gotenv("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_ID")
     GOOGLE_REDIRECT_URI: str = Field("http://127.0.0.1:8000/auth/google/callback")
 
     # ============================================================
