@@ -7,7 +7,7 @@ const LoginPage: React.FC = () => {
     <LoginForm
       title="Bon retour !"
       subtitle="Continuez votre apprentissage"
-      redirectTo="/dashboard"
+      redirectTo="/chat"
       showForgotPassword
       showSignupLink
       showBackLink

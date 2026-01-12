@@ -1,31 +1,29 @@
-
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../layout/Button';
 import {
-  HeroContainer,
-  HeroContent,
-  HeroBadge,
-  HeroTitle,
-  HeroHighlight,
-  HeroSubtitle,
   HeroCta,
-  HeroStats,
   StatItem,
   StatNumber,
   StatLabel,
-  HeroVisual,
   ChatPreview,
   ChatHeader,
   ChatDot,
   ChatMessages,
   Message,
   LlmBadge,
+  IntroContainer,
+  IntoContent,
+  Badge,
+  IntroTitle,
+  IntroSubtitle,
+  IntroTitleHighlight,
+  IntroStats,
+  IntroVisual,
 } from '../../styles/IntroStyles';
 
 
-interface HeroStat {
+interface IntroStat {
   value: string | number;
   label: string;
 }
@@ -37,7 +35,7 @@ interface PreviewMessage {
   llm?: string;
 }
 
-interface HeroProps {
+interface IntroProps {
   /** Texte du badge */
   badge?: string;
   /** Icône du badge (emoji) */
@@ -61,7 +59,7 @@ interface HeroProps {
   /** URL du bouton secondaire */
   ctaSecondaryHref?: string;
   /** Statistiques à afficher */
-  stats?: HeroStat[];
+  stats?: IntroStat[];
   /** Messages de preview */
   previewMessages?: PreviewMessage[];
   /** Callback bouton principal */
@@ -70,10 +68,7 @@ interface HeroProps {
   onCtaSecondaryClick?: () => void;
 }
 
-/**
- * Valeurs par défaut
- */
-const defaultStats: HeroStat[] = [
+const defaultStats: IntroStat[] = [
   { value: '4', label: 'LLMs experts' },
   { value: '20+', label: 'Langages & Frameworks' },
   { value: '∞', label: 'Mémoire persistante' },
@@ -92,10 +87,8 @@ const defaultPreviewMessages: PreviewMessage[] = [
   },
 ];
 
-/**
- * Section Hero de la landing page
- */
-const Hero: React.FC<HeroProps> = ({
+
+const Intro: React.FC<IntroProps> = ({
   badge = 'Propulsé par Backboard.io',
   badgeIcon = '🚀',
   titleStart = 'Le mentor de code qui ',
@@ -123,29 +116,27 @@ const Hero: React.FC<HeroProps> = ({
   };
 
   const handleCtaSecondaryClick = () => {
-    if (onCtaSecondaryClick) {
-      onCtaSecondaryClick();
-    } else if (ctaSecondaryHref) {
-      navigate(ctaSecondaryHref);
-    }
+   
+     // Scroll to anchor
+        const element = document.querySelector('#pricing');
+        element?.scrollIntoView({ behavior: "smooth" });
+    
   };
 
   return (
-    <HeroContainer as="section">
-      {/* Contenu texte */}
-      <HeroContent>
-        <HeroBadge
+    <IntroContainer as="section">
+      <IntoContent>
+        <Badge
           label={`${badgeIcon} ${badge}`}
           size="medium"
         />
 
-        <HeroTitle variant="h1">
+        <IntroTitle variant="h1">
           {titleStart}
-          <HeroHighlight>{titleHighlight}</HeroHighlight>
+          <IntroTitleHighlight>{titleHighlight}</IntroTitleHighlight>
           {titleEnd}
-        </HeroTitle>
-
-        <HeroSubtitle>{subtitle}</HeroSubtitle>
+        </IntroTitle>
+        <IntroSubtitle>{subtitle}</IntroSubtitle>
 
         <HeroCta>
           <Button
@@ -168,18 +159,18 @@ const Hero: React.FC<HeroProps> = ({
           )}
         </HeroCta>
 
-        <HeroStats>
+        <IntroStats>
           {stats.map((stat, index) => (
             <StatItem key={index}>
               <StatNumber>{stat.value}</StatNumber>
               <StatLabel>{stat.label}</StatLabel>
             </StatItem>
           ))}
-        </HeroStats>
-      </HeroContent>
+        </IntroStats>
+      </IntoContent>
 
       {/* Preview visuelle */}
-      <HeroVisual>
+      <IntroVisual>
         <ChatPreview>
           <ChatHeader>
             <ChatDot color="red" />
@@ -198,9 +189,9 @@ const Hero: React.FC<HeroProps> = ({
             ))}
           </ChatMessages>
         </ChatPreview>
-      </HeroVisual>
-    </HeroContainer>
+      </IntroVisual>
+    </IntroContainer>
   );
 };
 
-export default Hero;
+export default Intro;

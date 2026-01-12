@@ -2,7 +2,7 @@ import React from 'react';
 import { CircularProgress } from '@mui/material';
 import { StyledButton, ButtonBadge } from '../../styles/ButtonStyles';
 
-type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'social';
+type ButtonVariant = 'primary'| 'secondary' | 'outline' | 'ghost' | 'social';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps {
