@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 
 from app.config.database import engine
 
-from app.routers import auth, profile
+from app.routers import auth, profile, backboard, assessment, chat
 
 
 
@@ -64,9 +64,13 @@ app.include_router(profile.router)
 
 #app.include_router(courses.router, prefix="/api/courses", tags=["Courses"])
 
+app.include_router(assessment.router)
+
 #app.include_router(progress.router, prefix="/api/progress", tags=["Progress"])
 
-#app.include_router(chat.router, prefix="/api/chat", tags=["AI Chat"])
+app.include_router(chat.router)
+
+app.include_router(backboard.router)
 
 
 

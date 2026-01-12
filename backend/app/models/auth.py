@@ -40,6 +40,13 @@ class User(Base, UUIDMixin, TimestampMixin):
         nullable=False,
         index=True
     )
+
+    assessment_sessions = relationship(
+        "AssessmentSession",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
     email_verified: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
@@ -201,7 +208,6 @@ class EmailVerificationToken(Base, UUIDMixin):
         nullable=False,
         index=True
     )
-    
     # ===== Token =====
     token: Mapped[str] = mapped_column(
         String(6),

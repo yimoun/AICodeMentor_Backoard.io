@@ -130,7 +130,6 @@ class MentoringSession(Base, UUIDMixin):
         cascade="all, delete-orphan",
         order_by="SessionMessage.created_at"
     )
-    
     # ===== Index =====
     __table_args__ = (
         Index("idx_sessions_last_message", "last_message_at", postgresql_ops={"last_message_at": "DESC"}),
@@ -204,151 +203,45 @@ class SessionMessage(Base, UUIDMixin):
     """
     Message individuel dans une session de mentorat.
     """
-    
     __tablename__ = "session_messages"
-    
-    # ===== Clé étrangère =====
+
+    # ===== Clés étrangères =====
     session_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey("mentoring_sessions.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
-    
-    # ===== Contenu =====
-    role: Mapped[MessageRoleEnum] = mapped_column(
-        nullable=False
-    )
-    content: Mapped[str] = mapped_column(
-        Text,
-        nullable=False
-    )
-    
-    # ===== Pour les messages assistant =====
-    llm_used: Mapped[Optional[LLMProviderEnum]] = mapped_column(
-        nullable=True
-    )
-    tokens_used: Mapped[Optional[int]] = mapped_column(
-        Integer,
-        nullable=True
-    )
-    credits_cost: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        nullable=False
-    )
-    
-    # ===== Feedback sur ce message =====
-    feedback_helpful: Mapped[Optional[bool]] = mapped_column(
-        Boolean,
-        nullable=True
-    )
-    feedback_text: Mapped[Optional[str]] = mapped_column(
-        Text,
-        nullable=True
-    )
-    
+
+    # ===== Contenu (RESTITUÉ) =====
+    role: Mapped[MessageRoleEnum] = mapped_column(nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)  # <--- Indispensable pour l'historique local
+
+    # ===== Métriques IA =====
+    llm_used: Mapped[Optional[LLMProviderEnum]] = mapped_column(nullable=True)
+    tokens_used: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    credits_cost: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+    # ===== Feedback Message =====
+    feedback_helpful: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
+    feedback_text: Mapped[Optional[str]] = mapped_column(Text,
+                                                         nullable=True)  # <--- Ajouté pour que mark_helpful fonctionne
+
     # ===== Métadonnées =====
-    metadata_json: Mapped[dict] = mapped_column(
-        "metadata",
-        JSONB,
-        default={},
-        nullable=False
-    )
-    # Structure possible:
-    # {
-    #     "context_used": [...],
-    #     "model_version": "claude-3-opus",
-    #     "temperature": 0.7,
-    #     "code_blocks": [{"language": "python", "content": "..."}]
-    # }
-    
-    # ===== Timestamps =====
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=func.now(),
-        nullable=False
-    )
-    
-    # ===== Relations =====
-    session: Mapped["MentoringSession"] = relationship(
-        "MentoringSession",
-        back_populates="messages"
-    )
-    
-    # ===== Index =====
+    metadata_json: Mapped[dict] = mapped_column("metadata", JSONB, default={}, nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
+
+    # ===== Relation Correcte (Celle qui fixe votre erreur initiale) =====
+    session = relationship("MentoringSession", back_populates="messages")
+
     __table_args__ = (
         Index("idx_messages_created", "created_at"),
     )
-    
-    @property
-    def is_user_message(self) -> bool:
-        """Vérifie si c'est un message utilisateur."""
-        return self.role == MessageRoleEnum.USER
-    
-    @property
-    def is_assistant_message(self) -> bool:
-        """Vérifie si c'est un message assistant."""
-        return self.role == MessageRoleEnum.ASSISTANT
-    
-    @property
-    def has_code(self) -> bool:
-        """Vérifie si le message contient du code."""
-        return "```" in self.content
-    
-    @property
-    def llm_display_name(self) -> str:
-        """Retourne le nom d'affichage du LLM."""
-        if not self.llm_used:
-            return ""
-        
-        names = {
-            LLMProviderEnum.CLAUDE: "Claude",
-            LLMProviderEnum.GPT4: "GPT-4",
-            LLMProviderEnum.GPT35: "GPT-3.5",
-            LLMProviderEnum.MISTRAL: "Mistral",
-            LLMProviderEnum.CODESTRAL: "Codestral",
-        }
-        return names.get(self.llm_used, self.llm_used.value)
-    
+
+    # ... vos propriétés existantes ...
+
     def mark_helpful(self, is_helpful: bool, text: Optional[str] = None) -> None:
         """Marque le message comme utile ou non."""
         self.feedback_helpful = is_helpful
-        self.feedback_text = text
-    
-    @classmethod
-    def create_user_message(cls, session_id: UUID, content: str) -> "SessionMessage":
-        """Factory pour créer un message utilisateur."""
-        return cls(
-            session_id=session_id,
-            role=MessageRoleEnum.USER,
-            content=content
-        )
-    
-    @classmethod
-    def create_assistant_message(
-        cls,
-        session_id: UUID,
-        content: str,
-        llm: LLMProviderEnum,
-        tokens: int,
-        credits: int
-    ) -> "SessionMessage":
-        """Factory pour créer un message assistant."""
-        return cls(
-            session_id=session_id,
-            role=MessageRoleEnum.ASSISTANT,
-            content=content,
-            llm_used=llm,
-            tokens_used=tokens,
-            credits_cost=credits
-        )
-    
-    @classmethod
-    def create_system_message(cls, session_id: UUID, content: str) -> "SessionMessage":
-        """Factory pour créer un message système."""
-        return cls(
-            session_id=session_id,
-            role=MessageRoleEnum.SYSTEM,
-            content=content
-        )
+        self.feedback_text = text  # Maintenant ça marchera

@@ -147,3 +147,37 @@ def calculate_question_xp(
     xp = int(xp * (1 + streak_bonus))
 
     return xp
+
+
+async def award_xp(
+        user: User,
+        skill_id: UUID,
+        xp_amount: int,
+        db: AsyncSession
+) -> dict:
+    """Distribue l'XP au profil et au skill."""
+
+    # 1. Ajouter au profil global
+    user.profile.total_xp += xp_amount
+    user.profile.update_streak()
+
+    # 2. Ajouter au skill spécifique
+    stmt = select(UserSkillLevel).where(
+        UserSkillLevel.user_id == user.id,
+        UserSkillLevel.skill_id == skill_id
+    )
+    result = await db.execute(stmt)
+    user_skill = result.scalar_one()
+
+    level_up = user_skill.add_xp(xp_amount)
+
+    await db.commit()
+
+    return {
+        "xp_earned": xp_amount,
+        "new_total_xp": user.profile.total_xp,
+        "skill_xp": user_skill.xp_points,
+        "level_up": level_up,
+        "new_level": user_skill.current_level.value if level_up else None,
+        "current_streak": user.profile.current_streak
+    }

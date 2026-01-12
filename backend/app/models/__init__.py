@@ -96,6 +96,11 @@ from .analytics import (
     EventLog,
 )
 
+# Assessment
+from .assessment import (
+    AssessmentSession,
+)
+
 
 # Liste complète des modèles pour Alembic
 __all__ = [
@@ -171,6 +176,9 @@ __all__ = [
     # Analytics
     "DailyActivity",
     "EventLog",
+
+    # Assessment
+    "AssessmentSession",
 ]
 
 

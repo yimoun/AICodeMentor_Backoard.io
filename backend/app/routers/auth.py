@@ -6,7 +6,7 @@ Routes pour l'authentification et la gestion des sessions.
 
 from datetime import datetime, timedelta, timezone
 from sys import displayhook
-from typing import Annotated
+from typing import Annotated, Dict
 from uuid import UUID
 import requests
 
@@ -266,9 +266,14 @@ async def google_callback(code: str, db: DBSession, request: Request):
     if existing_user:
         # Email existe mais pas lié à Google
         # → Demander confirmation
-        link_token = create_link_token(
-            email=user_info["email"],
-            google_id=user_info["id"]
+        link_token = create_access_token(
+            subject=str(existing_user.id),
+            expires_delta=timedelta(minutes=15),
+            extra_data={
+                "google_id": user_info["id"],
+                "email": user_info["email"],
+                "type": "account_linking"  # Pour savoir quoi faire au retour
+            }
         )
         return RedirectResponse(
             f"{settings.FRONTEND_URL}/auth/link-account?token={link_token}"
@@ -309,10 +314,8 @@ async def google_callback(code: str, db: DBSession, request: Request):
 
 @router.post("/link-account")
 async def link_account(
-        email: str,
-        google_id: str,
-        password: str,  # L'utilisateur prouve qu'il possède le compte
-        db: DBSession
+        data:dict[str, None],
+        db: DBSession, request: Request,
 ):
     try:
         link_data = decode_link_token(data.link_token)
