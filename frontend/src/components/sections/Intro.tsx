@@ -116,11 +116,11 @@ const Intro: React.FC<IntroProps> = ({
   };
 
   const handleCtaSecondaryClick = () => {
-    if (onCtaSecondaryClick) {
-      onCtaSecondaryClick();
-    } else if (ctaSecondaryHref) {
-      navigate(ctaSecondaryHref);
-    }
+   
+     // Scroll to anchor
+        const element = document.querySelector('#pricing');
+        element?.scrollIntoView({ behavior: "smooth" });
+    
   };
 
   return (

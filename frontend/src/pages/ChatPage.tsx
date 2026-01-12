@@ -1,12 +1,11 @@
-// frontend/src/pages/ChatPage.tsx
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Route, useNavigate } from 'react-router-dom';
 //import ChatSidebar, { UserData, CreditsData, NavItemData } from '../components/features/chat/ChatSidebar.tsx';
 import ChatMain, { type ChatMessage, type ChatContextData } from '../components/features/chat/ChatMain.tsx';
 //import { SkillProgressData } from '@/components/features/chat/SkillsProgress/SkillsProgress';
 import { ChatLayoutContainer } from '../styles/chat/ChatLayoutStyles';
 import ChatSidebar, { type CreditsData, type UserData } from '../components/features/chat/ChatSidebar.tsx';
+import DashboardPage from './DashboardPage.tsx';
 
 /**
  * Interface pour SkillProgressData
@@ -210,15 +209,19 @@ const ChatPage: React.FC = () => {
         onSkillClick={handleSkillClick}
       /> 
 
-      {/* Zone principale */}
-      <ChatMain
+    
+      {/* Zone principale qui varie selon le ChatMain/DashboardPage/SkillsPage/BadgesPages/SettingsPage */}
+      {/* <ChatMain
         context={defaultContext}
         messages={messages}
         isTyping={isTyping}
         onSendMessage={handleSendMessage}
         onShowHistory={handleShowHistory}
         onNewChat={handleNewChat}
-      />
+      /> */}
+
+      <DashboardPage />
+
     </ChatLayoutContainer>
   );
 };
