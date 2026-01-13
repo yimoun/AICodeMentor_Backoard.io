@@ -19,9 +19,6 @@ import {
   CertDate,
 } from '../../../styles/profile/PublicProfileStyles';
 
-/**
- * Type de niveau
- */
 export type SkillLevelType = 'gold' | 'silver' | 'bronze';
 
 /**

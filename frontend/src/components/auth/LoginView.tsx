@@ -18,7 +18,6 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import FormTextField from "../controls/FormTextField";
 import ProgressBackdrop from "../controls/ProgressBackdrop";
 import UserDS from "../../data_services/UserDS";
-import ReCAPTCHA from "react-google-recaptcha";
 
 
 
@@ -34,7 +33,7 @@ function LoginView() {
   const [submitWarning, setSubmitWarning] = useState("");  
   const [submitError, setSubmitError] = useState("");       
   const [submitting, setSubmitting] = useState(false);      
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+
 
 
   
@@ -69,7 +68,7 @@ function LoginView() {
 
      navigate("/events"); //TODO: Ajout temporaire pour bypasser la vérification du recaptcha pendant le développement
 
-    UserDS.login(data.username, data.password, recaptchaToken)
+    UserDS.login(data.username, data.password)
       .then(() => {
         navigate("/"); //En cas de succes l’utilisateur est redirigé vers la route de path /.
       })
@@ -149,12 +148,6 @@ function LoginView() {
             {submitError}
           </Alert>
         )}
-
-        <ReCAPTCHA
-            sitekey="6LfwcOUqAAAAAE5ZymKUfkCTrdVO8_X_SDg1Msqt"
-            onChange={(token: string | null) => setRecaptchaToken(token)}
-            onExpired={() => setRecaptchaToken(null)}
-        />
 
 
         <Button
