@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { Button } from '../../layout/Button';
+import { Button } from '../../ui/Button';
 import {
   ChatInputContainer,
   InputContext,

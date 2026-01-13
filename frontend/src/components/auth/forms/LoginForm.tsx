@@ -4,12 +4,10 @@ import { useForm } from 'react-hook-form';
 import { Link } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-// Composants réutilisables
 import FormTextField from '../../controls/FormTextField';
 import ProgressBackdrop from '../../controls/ProgressBackdrop';
-import { Button } from '../../layout/Button';
+import { Button } from '../../ui/Button';
 
-// Styles
 import {
   AuthContainer,
   AuthCard,
@@ -58,7 +56,7 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({
   onSuccess,
   onError,
-  redirectTo = '/chat',
+  redirectTo = '/app/chat',
   title = 'Bon retour !',
   subtitle = 'Continuez votre apprentissage',
   brandIcon = '🎓',

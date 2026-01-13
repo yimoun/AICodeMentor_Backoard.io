@@ -1,9 +1,9 @@
 import { Outlet } from "react-router-dom";
 import { Box } from "@mui/material";
-import Footer from "./layout/Footer";
-import Navbar from "./layout/NavBar/NavBar";
+import Footer from "../ui/Footer";
+import Navbar from "../ui/NavBar/NavBar";
 
-function App() {
+function HomeLayout() {
   return (
     <Box
       sx={{
@@ -24,4 +24,4 @@ function App() {
   );
 }
 
-export default App;
+export default HomeLayout;

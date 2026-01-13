@@ -1,7 +1,7 @@
 // Zone principale de chat
 
 import React, { useRef, useEffect } from 'react';
-import { Button } from '../../layout/Button';
+import { Button } from '../../ui/Button';
 import Message, { type LlmType, type CodeBlockData } from './Messages';
 import ChatInput from './ChatInput';
 import {

@@ -9,7 +9,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import FormTextField from '../../controls/FormTextField';
 import ProgressBackdrop from '../../controls/ProgressBackdrop';
-import { Button } from '../../layout/Button';
+import { Button } from '../../ui/Button';
 
 // Styles
 import {

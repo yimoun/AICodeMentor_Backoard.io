@@ -1,48 +1,7 @@
 import React, { useState } from 'react';
-import { Route, useNavigate } from 'react-router-dom';
-//import ChatSidebar, { UserData, CreditsData, NavItemData } from '../components/features/chat/ChatSidebar.tsx';
-import ChatMain, { type ChatMessage, type ChatContextData } from '../components/features/chat/ChatMain.tsx';
-//import { SkillProgressData } from '@/components/features/chat/SkillsProgress/SkillsProgress';
-import { ChatLayoutContainer } from '../styles/chat/ChatLayoutStyles';
-import ChatSidebar, { type CreditsData, type UserData } from '../components/features/chat/ChatSidebar.tsx';
-import DashboardPage from './DashboardPage.tsx';
-
-/**
- * Interface pour SkillProgressData
- */
-interface SkillProgressData {
-  id: string;
-  name: string;
-  icon: string;
-  level: 'Débutant' | 'Intermédiaire' | 'Avancé' | 'Expert';
-  progress: number;
-}
-
-/**
- * Données utilisateur par défaut (à remplacer par les vraies données)
- */
-const defaultUser: UserData = {
-  name: 'Jordan T.',
-  initials: 'JT',
-  plan: 'Plan Pro',
-};
-
-/**
- * Crédits par défaut
- */
-const defaultCredits: CreditsData = {
-  current: 1847,
-  total: 2000,
-};
-
-/**
- * Skills par défaut
- */
-const defaultSkills: SkillProgressData[] = [
-  { id: 'python', name: 'Python', icon: '🐍', level: 'Intermédiaire', progress: 65 },
-  { id: 'fastapi', name: 'FastAPI', icon: '⚡', level: 'Débutant', progress: 25 },
-  { id: 'postgresql', name: 'PostgreSQL', icon: '🐘', level: 'Intermédiaire', progress: 55 },
-];
+import { useSearchParams } from 'react-router-dom';
+import ChatMain, { type ChatMessage, type ChatContextData } from '../features/chat/ChatMain.tsx';
+import { useAppContext } from '../layouts/AppLayout';
 
 /**
  * Messages par défaut (exemple)
@@ -128,12 +87,18 @@ const defaultContext: ChatContextData = {
 };
 
 /**
- * Page principale du Chat
+ * Contenu de la page Chat (sans sidebar)
  */
-const ChatPage: React.FC = () => {
-  const navigate = useNavigate();
+const ChatContent: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const { updateCredits } = useAppContext();
+  
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessages);
   const [isTyping, setIsTyping] = useState(false);
+  const [context] = useState<ChatContextData>(defaultContext);
+
+  // Récupérer le skill depuis l'URL si présent
+  const skillFromUrl = searchParams.get('skill');
 
   /**
    * Envoie un nouveau message
@@ -163,6 +128,9 @@ const ChatPage: React.FC = () => {
       };
       setMessages((prev) => [...prev, assistantMessage]);
       setIsTyping(false);
+      
+      // // Déduire les crédits
+      // updateCredits((prev: number) => prev - 3);
     }, 2000);
   };
 
@@ -179,51 +147,18 @@ const ChatPage: React.FC = () => {
    */
   const handleNewChat = () => {
     setMessages([]);
-    // TODO: Réinitialiser le contexte
-  };
-
-  /**
-   * Acheter des crédits
-   */
-  const handleBuyCredits = () => {
-    navigate('/pricing');
-  };
-
-  /**
-   * Clic sur un skill
-   */
-  const handleSkillClick = (skillId: string) => {
-    // TODO: Changer le contexte du chat
-    console.log('Skill clicked:', skillId);
   };
 
   return (
-    <ChatLayoutContainer>
-      {/* Sidebar */}
-     <ChatSidebar
-        user={defaultUser}
-        credits={defaultCredits}
-        skills={defaultSkills}
-        streakCount={7}
-        onBuyCredits={handleBuyCredits}
-        onSkillClick={handleSkillClick}
-      /> 
-
-    
-      {/* Zone principale qui varie selon le ChatMain/DashboardPage/SkillsPage/BadgesPages/SettingsPage */}
-      {/* <ChatMain
-        context={defaultContext}
-        messages={messages}
-        isTyping={isTyping}
-        onSendMessage={handleSendMessage}
-        onShowHistory={handleShowHistory}
-        onNewChat={handleNewChat}
-      /> */}
-
-      <DashboardPage />
-
-    </ChatLayoutContainer>
+    <ChatMain
+      context={context}
+      messages={messages}
+      isTyping={isTyping}
+      onSendMessage={handleSendMessage}
+      onShowHistory={handleShowHistory}
+      onNewChat={handleNewChat}
+    />
   );
 };
 
-export default ChatPage;
+export default ChatContent;

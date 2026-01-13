@@ -1,10 +1,10 @@
 import React from 'react';
-import { Button } from '../../layout/Button';
+import { Button } from '../../ui/Button';
 import {
   DashboardCard,
   CardTitle,
   CardSubtitle,
-} from '../../../styles/dashboard/dashboardStyles';
+} from '../../../styles/dashboard/DashboardStyles';
 import {
   ReviewList,
   ReviewItem,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../layout/Button';
+import Button from '../ui/Button';
 import {
   HeroCta,
   StatItem,

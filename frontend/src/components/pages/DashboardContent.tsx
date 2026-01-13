@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ChatSidebar, { type UserData, type CreditsData } from '../components/features/chat/ChatSidebar.tsx';
-import DashboardMain, { type StatData, type PeriodType } from '../components/features/dashboard/DashboardMain.tsx';
-import { type DayData } from '../components/features/dashboard/ActivityChart';
-import { type SkillData } from '../components/features/dashboard/SkillProgressCard';
-import { type ReviewTopicData } from '../components/features/dashboard/ReviewListCard';
-import { type BadgeData } from '../components/features/dashboard/BadgesCard';
-import { type UsageData } from '../components/features/dashboard/CreditsUsageCard';
-import { type SkillProgressData } from '../components/features/chat/SkillsProgress';
-import { ChatLayoutContainer } from '../styles/chat/ChatLayoutStyles';
+import ChatSidebar, { type UserData, type CreditsData } from '../features/chat/ChatSidebar.tsx';
+import DashboardMain, { type StatData, type PeriodType } from '../features/dashboard/DashboardMain.tsx';
+import { type DayData } from '../features/dashboard/ActivityChart.tsx';
+import { type SkillData } from '../features/dashboard/SkillProgressCard.tsx';
+import { type ReviewTopicData } from '../features/dashboard/ReviewListCard.tsx';
+import { type BadgeData } from '../features/dashboard/BadgesCard.tsx';
+import { type UsageData } from '../features/dashboard/CreditsUsageCard.tsx';
+import { type SkillProgressData } from '../features/chat/SkillsProgress.tsx';
+// import { ChatLayoutContainer } from '../styles/chat/ChatLayoutStyles.ts';
 
 /**
  * Données utilisateur par défaut
@@ -144,18 +144,6 @@ const DashboardPage: React.FC = () => {
   };
 
   return (
-    <ChatLayoutContainer>
-      {/* Sidebar (réutilisée du chat) */}
-      {/* <ChatSidebar
-        user={defaultUser}
-        credits={defaultCredits}
-        skills={defaultSidebarSkills}
-        streakCount={7}
-        onBuyCredits={handleBuyCredits}
-        onSkillClick={handleSkillClick}
-      /> */}
-
-      {/* Zone principale */}
       <DashboardMain
         title="Dashboard"
         subtitle="Votre progression cette semaine"
@@ -173,7 +161,7 @@ const DashboardPage: React.FC = () => {
         onSkillClick={handleSkillClick}
         onBadgeClick={handleBadgeClick}
       />
-    </ChatLayoutContainer>
+ 
   );
 };
 

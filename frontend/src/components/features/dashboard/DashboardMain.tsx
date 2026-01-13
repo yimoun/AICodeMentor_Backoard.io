@@ -17,7 +17,7 @@ import {
   PeriodSelect,
   DashboardGrid,
   StatsRow,
-} from '../../../styles/dashboard/dashboardStyles';
+} from '../../../styles/dashboard/DashboardStyles';
 
 /**
  * Type pour une stat

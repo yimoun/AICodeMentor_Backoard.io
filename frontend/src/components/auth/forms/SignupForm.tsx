@@ -1,5 +1,3 @@
-// frontend/src/components/features/auth/SignupForm/SignupForm.tsx
-
 import React, { useState, useMemo } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -9,7 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Composants réutilisables
 import FormTextField from '../../controls/FormTextField';
 import ProgressBackdrop from '../../controls/ProgressBackdrop';
-import { Button } from '../../layout/Button';
+import { Button } from '../../ui/Button';
 
 // Styles
 import {

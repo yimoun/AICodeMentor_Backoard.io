@@ -1,10 +1,8 @@
-// frontend/src/pages/HomePage.tsx
-
 import React from 'react';
 import { Box } from '@mui/material';
-import Intro from '../components/sections/Intro';
-import Features from '../components/sections/features/Features';
-import Pricing from '../components/sections/pricing/Pricing';
+import Intro from '../sections/Intro';
+import Features from '../sections/features/Features';
+import Pricing from '../sections/pricing/Pricing';
 
 /**
  * Page d'accueil complète avec toutes les sections

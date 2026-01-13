@@ -6,7 +6,7 @@ import UserInfo from './UserInfo';
 import CreditsWidget from './CreditsWidget';
 import SkillsProgress, { type SkillProgressData } from './SkillsProgress';
 import StreakWidget from './StreakWidget';
-import { NavItem, SidebarNav } from '../../layout/NavItem';
+import { NavItem, SidebarNav } from '../../ui/NavItem';
 import {
   ChatSidebarContainer,
   SidebarHeader,

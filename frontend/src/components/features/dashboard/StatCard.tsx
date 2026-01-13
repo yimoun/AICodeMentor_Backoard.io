@@ -8,7 +8,7 @@ import {
   StatValue,
   StatLabel,
   StatChange,
-} from '../../../styles/dashboard/dashboardStyles';
+} from '../../../styles/dashboard/DashboardStyles';
 
 interface StatCardProps {
   /** Icône (emoji) */
