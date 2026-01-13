@@ -1,10 +1,14 @@
 # services/backboard_service.py
+import json
 
 import httpx
 from typing import Optional, AsyncGenerator
 from uuid import UUID
 
 from app.config.settings import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class BackboardService:
@@ -12,10 +16,8 @@ class BackboardService:
 
     def __init__(self):
         self.base_url = settings.BACKBOARD_API_URL
-        self.headers = {
-            "Authorization": f"Bearer {settings.BACKBOARD_API_KEY}",
-            "Content-Type": "application/json"
-        }
+        self.headers = {"X-API-Key": settings.BACKBOARD_API_KEY,}
+
         self.assistant_id = settings.BACKBOARD_ASSISTANT_ID
 
     async def create_thread(
@@ -33,12 +35,13 @@ class BackboardService:
         Returns:
             {"thread_id": "...", "created_at": "..."}
         """
+        logger.warning("=== BACKBOARD REQUEST HEADERS ===")
+
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                f"{self.base_url}/threads",
+                f"{self.base_url}/assistants/{self.assistant_id}/threads",
                 headers=self.headers,
                 json={
-                    "assistant_id": self.assistant_id,
                     "metadata": {
                         "user_id": user_id,
                         **(metadata or {})
@@ -72,6 +75,7 @@ class BackboardService:
         """
         payload = {
             "content": content,
+            "stream": "false",
             "memory": "Auto"
         }
 
@@ -82,7 +86,7 @@ class BackboardService:
             response = await client.post(
                 f"{self.base_url}/threads/{thread_id}/messages",
                 headers=self.headers,
-                json=payload
+                data=payload
             )
             response.raise_for_status()
             return response.json()
@@ -101,7 +105,7 @@ class BackboardService:
         """
         payload = {
             "content": content,
-            "stream": True,
+            "stream": "True",
             "memory": "Auto"
         }
 
@@ -113,7 +117,7 @@ class BackboardService:
                     "POST",
                     f"{self.base_url}/threads/{thread_id}/messages",
                     headers=self.headers,
-                    json=payload
+                    data=payload
             ) as response:
                 response.raise_for_status()
                 async for line in response.aiter_lines():
@@ -163,6 +167,45 @@ class BackboardService:
                 headers=self.headers,
                 json={"metadata": metadata}
             )
+            response.raise_for_status()
+            return response.json()
+
+    async def send_tool_result(
+            self,
+            thread_id: str,
+            tool_name: str,
+            result: dict | list | str
+    ) -> dict:
+        """
+        Envoie le résultat d'un tool au LLM pour qu'il poursuive la conversation.
+
+        Args:
+            thread_id: ID du thread Backboard
+            tool_name: Nom du tool appelé par le LLM
+            result: Résultat du tool (dict, list ou str)
+
+        Returns:
+            Réponse Backboard après injection du tool result
+        """
+
+        if not isinstance(result, str):
+            result_content = json.dumps(result, ensure_ascii=False)
+        else:
+            result_content = result
+
+        payload = {
+            "role": "tool",
+            "tool_name": tool_name,
+            "content": result_content
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{self.base_url}/threads/{thread_id}/messages",
+                headers=self.headers,
+                data=payload
+            )
+
             response.raise_for_status()
             return response.json()
 

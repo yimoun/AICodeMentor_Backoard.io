@@ -144,6 +144,38 @@ async def create_session(
         user_context=user_context
     )
 
+    print( " =========================================================== ")
+    print("  =========================================================== ")
+    print("                    RÉPONSE DE BACKBOARD ")
+    print("  =========================================================== ")
+    print("  =========================================================== ")
+    print(response_data)
+    print("  =========================================================== ")
+    print("  =========================================================== ")
+
+
+    if response_data.get("tool_called"):
+        print()
+        tool_response = await handle_tool_call(
+            ToolCallRequest(
+                tool=response_data["tool_called"],
+                arguments=response_data.get("arguments", {})
+            ),
+            current_user=current_user
+        )
+
+        await backboard_service.send_tool_result(
+            thread_id=thread_id,
+            tool_name=response_data["tool_called"],
+            result=tool_response
+        )
+
+        final_response = await backboard_service.send_message(
+            thread_id=thread_id,
+            content="Continue"  # ou "continue"
+        )
+
+
     # 7. Consommer les crédits
     credits_remaining = await consume_credits(
         user_id=current_user.id,
@@ -336,6 +368,26 @@ async def send_message(
         content=data.content,
         user_context=user_context
     )
+
+    if response_data.get("tool_called"):
+        tool_response = await handle_tool_call(
+            ToolCallRequest(
+                tool=response_data["tool_called"],
+                arguments=response_data.get("arguments", {})
+            ),
+            current_user=current_user
+        )
+
+        await backboard_service.send_tool_result(
+            thread_id=thread_id,
+            tool_name=response_data["tool_called"],
+            result=tool_response
+        )
+
+        final_response = await backboard_service.send_message(
+            thread_id=thread_id,
+            content="Continue"  # ou "continue"
+        )
 
     # 5. Consommer les crédits
     credits_remaining = await consume_credits(

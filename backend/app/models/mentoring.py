@@ -4,7 +4,7 @@ AI Code Mentor - Mentoring Models
 Modèles pour les sessions de mentorat et les messages.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
@@ -143,7 +143,7 @@ class MentoringSession(Base, UUIDMixin):
     @property
     def duration_minutes(self) -> int:
         """Calcule la durée de la session en minutes."""
-        end = self.ended_at or datetime.utcnow()
+        end = self.ended_at or datetime.now(timezone.utc)
         delta = end - self.started_at
         return int(delta.total_seconds() / 60)
     
@@ -161,7 +161,7 @@ class MentoringSession(Base, UUIDMixin):
         """Ajoute un message à la session."""
         self.messages.append(message)
         self.message_count += 1
-        self.last_message_at = datetime.utcnow()
+        self.last_message_at = datetime.now(timezone.utc)
         
         if message.credits_cost:
             self.credits_consumed += message.credits_cost
@@ -213,9 +213,8 @@ class SessionMessage(Base, UUIDMixin):
         index=True
     )
 
-    # ===== Contenu (RESTITUÉ) =====
+    # ===== Contenu =====
     role: Mapped[MessageRoleEnum] = mapped_column(nullable=False)
-    content: Mapped[str] = mapped_column(Text, nullable=False)  # <--- Indispensable pour l'historique local
 
     # ===== Métriques IA =====
     llm_used: Mapped[Optional[LLMProviderEnum]] = mapped_column(nullable=True)
@@ -225,7 +224,7 @@ class SessionMessage(Base, UUIDMixin):
     # ===== Feedback Message =====
     feedback_helpful: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     feedback_text: Mapped[Optional[str]] = mapped_column(Text,
-                                                         nullable=True)  # <--- Ajouté pour que mark_helpful fonctionne
+                                                         nullable=True)
 
     # ===== Métadonnées =====
     metadata_json: Mapped[dict] = mapped_column("metadata", JSONB, default={}, nullable=False)
@@ -239,7 +238,7 @@ class SessionMessage(Base, UUIDMixin):
         Index("idx_messages_created", "created_at"),
     )
 
-    # ... vos propriétés existantes ...
+    tool_called: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     def mark_helpful(self, is_helpful: bool, text: Optional[str] = None) -> None:
         """Marque le message comme utile ou non."""

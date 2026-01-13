@@ -38,7 +38,7 @@ class MessageResponse(BaseSchema):
     """Un message dans la conversation."""
     id: UUID
     role: Literal["user", "assistant"]
-    content: str
+    content: Optional[str] = None
     tokens_used: int
     credits_cost: int
     llm_used: Optional[str] = None

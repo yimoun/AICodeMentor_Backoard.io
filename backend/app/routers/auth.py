@@ -418,7 +418,7 @@ async def refresh_token(
         )
     
     # Générer un nouveau access token
-    access_token = create_access_token(user_id=str(user.id))
+    access_token = create_access_token(subject=str(user.id))
     
     return TokenResponse(
         access_token=access_token,
@@ -893,7 +893,7 @@ async def generate_and_store_tokens(
         request: Request
 ) -> dict:
     """Génère et stocke les tokens."""
-    access_token = create_access_token(str(user.id))
+    access_token = create_access_token(subject=str(user.id))
     refresh_token_value = create_refresh_token(str(user.id))
 
     # Device info

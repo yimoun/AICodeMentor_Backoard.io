@@ -4,7 +4,7 @@ AI Code Mentor - Auth Models
 Modèles pour l'authentification et la gestion des sessions.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
@@ -364,9 +364,9 @@ class RefreshToken(Base, UUIDMixin):
         """Vérifie si le token est encore valide."""
         return (
             self.revoked_at is None and 
-            self.expires_at > datetime.utcnow()
+            self.expires_at > datetime.now(timezone.utc)
         )
     
     def revoke(self) -> None:
         """Révoque ce refresh token."""
-        self.revoked_at = datetime.utcnow()
+        self.revoked_at = datetime.now(timezone.utc)
