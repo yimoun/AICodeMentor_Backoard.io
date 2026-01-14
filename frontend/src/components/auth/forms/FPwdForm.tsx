@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Link } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -26,11 +26,10 @@ import {
   SuccessTitle,
   SuccessText,
   ForgotPasswordFooter,
-  BackLink,
   InfoBox,
   ButtonContainer,
 } from '../../../styles/ForgotPasswordStyles';
-import type ForgotPassword from '../ForgotPasswordPage';
+
 
 /**
  * Types pour le formulaire
@@ -75,7 +74,7 @@ const FPwdForm: React.FC<ForgotPasswordProps> = ({
   showBackLink = true,
   showInfoBox = true,
 }) => {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isEmailSent, setIsEmailSent] = useState(false);
@@ -104,7 +103,7 @@ const FPwdForm: React.FC<ForgotPasswordProps> = ({
       // const response = await authService.forgotPassword(data.email);
       
       // Simulation d'appel API au backend
-      await new Promise((resolve, reject) => {
+      await new Promise((resolve) => {
         setTimeout(() => {
           // Simuler une erreur pour tester (décommenter pour tester)
           // if (data.email === 'error@test.com') {

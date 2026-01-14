@@ -2,7 +2,7 @@ import React from 'react';
 import {
   DashboardCard,
   CardTitle,
-} from '../../../styles/dashboard/dashboardStyles';
+} from '../../../styles/dashboard/DashboardStyles';
 import {
   BadgesGrid,
   BadgeItem,

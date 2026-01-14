@@ -17,7 +17,7 @@ import {
 
 interface UserInfoProps {
   /** Nom complet de l'utilisateur */
-  name: string;
+  userName: string;
   /** Initiales pour l'avatar (ex: "JT") */
   initials?: string;
   /** Plan actuel (ex: "Plan Pro") */
@@ -86,7 +86,7 @@ const SpinnerIcon: React.FC = () => (
  * Composant UserInfo - Affiche les informations de l'utilisateur avec bouton déconnexion
  */
 const UserInfo: React.FC<UserInfoProps> = ({
-  name,
+  userName,
   initials,
   plan = 'Plan Gratuit',
   avatarUrl,
@@ -100,7 +100,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const displayInitials = initials || getInitials(name);
+  const displayInitials = initials || getInitials(userName);
 
   /**
    * Gestion de la déconnexion
@@ -146,7 +146,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
         <UserInfoWrapper>
           <UserAvatar
             src={avatarUrl}
-            alt={name}
+            alt={userName}
             onClick={onAvatarClick}
             sx={{ cursor: onAvatarClick ? 'pointer' : 'default' }}
           >
@@ -154,7 +154,7 @@ const UserInfo: React.FC<UserInfoProps> = ({
           </UserAvatar>
           
           <UserDetails>
-            <UserName>{name}</UserName>
+            <UserName>{userName}</UserName>
             <UserPlan>{plan}</UserPlan>
           </UserDetails>
         </UserInfoWrapper>

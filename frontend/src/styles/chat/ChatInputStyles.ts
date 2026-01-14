@@ -1,5 +1,5 @@
 import { styled, keyframes } from '@mui/material/styles';
-import { Box, Typography, TextField, IconButton, Chip } from '@mui/material';
+import { Box, Typography, IconButton, Chip } from '@mui/material';
 
 /**
  * Animation pour les dots de typing

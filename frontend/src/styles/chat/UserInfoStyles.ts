@@ -1,14 +1,6 @@
 import styled, { keyframes, css } from 'styled-components';
 import { Avatar } from '@mui/material';
 
-/**
- * Animation de pulse pour le hover
- */
-const pulseAnimation = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-`;
 
 /**
  * Animation de rotation pour le loading

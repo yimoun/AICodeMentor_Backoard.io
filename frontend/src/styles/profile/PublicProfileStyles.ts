@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, Chip } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 /* ==================== VARIABLES ==================== */
 const colors = {
@@ -31,7 +31,7 @@ export const PublicProfileContainer = styled(Box)(({ theme }) => ({
 }));
 
 /* ==================== BANNER ==================== */
-export const ProfileBanner = styled(Box)(({ theme }) => ({
+export const ProfileBanner = styled(Box)(() => ({
   position: 'relative',
   height: 280,
   background: `linear-gradient(135deg, ${colors.mcgillRed} 0%, #8B0000 100%)`,
@@ -437,7 +437,7 @@ interface HeatmapDayProps {
 
 export const HeatmapDay = styled(Box, {
   shouldForwardProp: (prop) => !['level', 'isToday'].includes(prop as string),
-})<HeatmapDayProps>(({ theme, level = 0, isToday }) => {
+})<HeatmapDayProps>(({ level = 0, isToday }) => {
   const levelColors: Record<number, string> = {
     0: colors.level0,
     1: colors.level1,
@@ -679,7 +679,7 @@ export const FooterBrand = styled(Typography)({
   fontWeight: 600,
 });
 
-export const FooterLink = styled(Box)(({ theme }) => ({
+export const FooterLink = styled(Box)(() => ({
   '& a': {
     color: '#FF6B6B',
     textDecoration: 'none',

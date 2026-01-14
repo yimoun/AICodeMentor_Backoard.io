@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUser from '../hooks/useUser';
-import { useAppContext } from '../layouts/AppLayout';
 import BadgesMain from '../features/badges/BadgesMain';
 import { type BadgeStatData } from '../features/badges/BadgesStats';
 import { type CertificationData } from '../features/badges/CertificationCard';

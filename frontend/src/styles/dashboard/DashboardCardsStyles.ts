@@ -13,14 +13,14 @@ export const SkillsList = styled(Box)(({ theme }) => ({
 /**
  * Row d'un skill
  */
-export const SkillRow = styled(Box)(({ theme }) => ({
+export const SkillRow = styled(Box)(() => ({
   // Container principal
 }));
 
 /**
  * Header d'un skill
  */
-export const SkillHeader = styled(Box)(({ theme }) => ({
+export const SkillHeader = styled(Box)(({theme}) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(1),
@@ -282,7 +282,7 @@ export const BadgeProgress = styled(Typography)(({ theme }) => ({
 /**
  * Container de l'utilisation des crédits
  */
-export const CreditsUsageContainer = styled(Box)(({ theme }) => ({
+export const CreditsUsageContainer = styled(Box)(() => ({
   // Container principal
 }));
 

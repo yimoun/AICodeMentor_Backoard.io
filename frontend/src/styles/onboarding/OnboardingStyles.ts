@@ -822,7 +822,7 @@ export const TestActions = styled(Box)({
 });
 
 /* ==================== RESULTS ==================== */
-export const ResultsContainer = styled(Box)(({ theme }) => ({
+export const ResultsContainer = styled(Box)(() => ({
   maxWidth: 1000,
   margin: "0 auto",
 }));

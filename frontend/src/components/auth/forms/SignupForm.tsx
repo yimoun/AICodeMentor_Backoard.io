@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Link, Box } from "@mui/material";
+import { Link } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 // Composants
@@ -102,15 +102,21 @@ const SignupForm: React.FC<SignupFormProps> = ({
 
     try {
       // 1. Inscription via UserDS
-      await UserDS.register({
+      const response = await UserDS.register({
         username: data.username,
         email: data.email,
         password: data.password,
+        confirmation_password: data.confirmPassword,
       });
 
-      console.log("✅ User registered:", data.email);
+      // 2. Vérifier que l'inscription a réussi
+      if (!response.data) {
+        throw new Error("Erreur lors de l'inscription");
+      }
 
-      // 2. Afficher le modal de vérification ou rediriger
+      console.log("✅ User registered:", response.data.email || data.email);
+
+      // 3. Afficher le modal de vérification ou rediriger
       if (requireEmailVerification) {
         setRegisteredEmail(data.email);
         setShowVerificationModal(true);
@@ -123,33 +129,30 @@ const SignupForm: React.FC<SignupFormProps> = ({
       }
 
     } catch (err: any) {
-      console.error("Signup error:", err);
+      console.error("❌ Signup error:", err);
 
-      // Gestion des erreurs
+      // Gestion des erreurs spécifiques
       if (err.response?.status === 409) {
         setErrorMessage("Un compte avec cet email ou ce nom d'utilisateur existe déjà");
+      } else if (err.response?.status === 400) {
+        // Erreur de validation
+        const errorMsg = err.response?.data?.detail || err.response?.data?.message || "Données invalides";
+        setErrorMessage(errorMsg);
+      } else if (err.response?.status === 422) {
+        // Erreur de validation Pydantic
+        setErrorMessage("Données invalides. Veuillez vérifier les champs.");
       } else {
         setErrorMessage(err.message || "Une erreur s'est produite. Veuillez réessayer.");
       }
 
       if (onError) {
-        onError(err.message || "Une erreur s'est produite");
+        onError(err.response?.data?.detail || err.message || "Une erreur s'est produite");
       }
     } finally {
       setIsLoading(false);
     }
   };
 
-  /**
-   * Callback quand l'email est vérifié
-   */
-  const handleEmailVerified = () => {
-    console.log("✅ Email verified, redirecting...");
-    if (onSuccess) {
-      onSuccess();
-    }
-    // La redirection est gérée par le modal
-  };
 
   return (
     <AuthContainer>
@@ -282,7 +285,6 @@ const SignupForm: React.FC<SignupFormProps> = ({
       <EmailVerificationModal
         email={registeredEmail}
         open={showVerificationModal}
-        onVerified={handleEmailVerified}
         redirectTo={redirectAfterVerification}
       />
 

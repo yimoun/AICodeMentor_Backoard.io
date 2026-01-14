@@ -34,7 +34,7 @@ engine: AsyncEngine = create_async_engine(
     connect_args={
         # Timeout de commande SQL (en secondes)
         "command_timeout": 60,
-        "ssl": "require",
+      # "ssl": "require",
     },
 )
 

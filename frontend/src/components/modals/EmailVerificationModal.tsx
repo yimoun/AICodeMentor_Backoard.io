@@ -28,8 +28,6 @@ interface EmailVerificationModalProps {
   email: string;
   /** Modal ouvert ou non */
   open: boolean;
-  /** Callback quand l'email est vérifié */
-  onVerified?: () => void;
   /** URL de redirection après vérification */
   redirectTo?: string;
 }
@@ -40,7 +38,6 @@ interface EmailVerificationModalProps {
 const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
   email,
   open,
-  onVerified,
   redirectTo = '/login',
 }) => {
   const navigate = useNavigate();
@@ -72,11 +69,6 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
       
       if (response.data.verified) {
         setSuccessMessage("Email vérifié avec succès ! Redirection...");
-        
-        // Callback
-        if (onVerified) {
-          onVerified();
-        }
 
         // Redirection après un court délai
         setTimeout(() => {
@@ -91,7 +83,7 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
     } finally {
       setIsChecking(false);
     }
-  }, [email, navigate, onVerified, redirectTo]);
+  }, [email, navigate, redirectTo]);
 
   /**
    * Renvoyer l'email de vérification
@@ -124,12 +116,8 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
     
     try {
       // Simuler la vérification côté "backend"
-      await UserDS.verifyEmail(email);
+      await UserDS.checkEmailVerified(email);
       setSuccessMessage("✅ Email vérifié (simulation) ! Redirection...");
-      
-      if (onVerified) {
-        onVerified();
-      }
 
       setTimeout(() => {
         navigate(redirectTo, { replace: true });
