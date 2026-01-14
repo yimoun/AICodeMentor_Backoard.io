@@ -34,11 +34,7 @@ engine: AsyncEngine = create_async_engine(
     connect_args={
         # Timeout de commande SQL (en secondes)
         "command_timeout": 60,
-        # SSL requis uniquement en production (AWS RDS)
-        # En développement local avec Docker, on désactive SSL
-        # "ssl": "require",  # Décommenter pour la production avec AWS RDS
-    } if settings.ENVIRONMENT != "production" else {
-        "command_timeout": 60,
+        # SSL requis pour AWS RDS
         "ssl": "require",
     },
 )

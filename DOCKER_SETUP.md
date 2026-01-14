@@ -4,39 +4,61 @@
 
 Les erreurs suivantes ont été identifiées et corrigées :
 
-1. ❌ **Fichier .env manquant** → ✅ Créé
-2. ❌ **PostgreSQL absent** → ✅ Ajouté au docker-compose.yml
-3. ❌ **Configuration SSL invalide** → ✅ Corrigée (désactivée en dev)
-4. ❌ **CORS mal configuré** → ✅ Corrigé (frontend au lieu de front)
-5. ❌ **Pas de volumes** → ✅ Volume PostgreSQL ajouté
-6. ❌ **Pas de healthchecks** → ✅ Healthchecks ajoutés
-7. ❌ **Pas de depends_on** → ✅ Dépendances configurées
+1. ❌ **Fichier .env manquant (template)** → ✅ Créé `.env.example`
+2. ❌ **CORS mal configuré** → ✅ Corrigé (`http://front:3000` → `http://frontend:3000`)
+3. ❌ **Nom de fichier non-standard** → ✅ Renommé (`Docker-compose.yml` → `docker-compose.yml`)
+4. ✅ **PostgreSQL sur AWS RDS** → Configuration SSL maintenue pour AWS
+
+## 📋 Architecture
+
+### Services Docker
+
+Le projet utilise **2 services Docker** :
+
+1. **backend** : FastAPI + Uvicorn (Python)
+   - Port : 8000
+   - Healthcheck : `/docs` endpoint
+   - Connexion à PostgreSQL AWS RDS (externe)
+
+2. **frontend** : React + Vite + Nginx
+   - Port : 3000 (mappé sur 80 interne)
+   - Dépend de : backend (attend qu'il soit healthy)
+
+### Base de Données
+
+**PostgreSQL est hébergé sur AWS RDS** (service externe, pas dans Docker)
+- Connexion sécurisée avec SSL (requis par AWS)
+- Configuré via variables d'environnement dans `.env`
 
 ## 🚀 Lancement du Projet
 
 ### 1. Configuration des Variables d'Environnement
 
-Le fichier `.env` a été créé avec des valeurs par défaut pour le développement.
+Le fichier `.env` existe déjà localement (ignoré par git pour la sécurité).
 
-**⚠️ IMPORTANT** : Avant de lancer, modifiez les valeurs suivantes dans `.env` :
+Vérifiez que votre `.env` contient les bonnes valeurs :
 
 ```bash
+# Base de données AWS RDS
+POSTGRES_USER=votre_user_rds
+POSTGRES_PASSWORD=votre_password_rds
+POSTGRES_HOST=votre-endpoint-rds.region.rds.amazonaws.com
+POSTGRES_PORT=5432
+POSTGRES_DB=ai_code_mentor
+
 # Clés API obligatoires
 BACKBOARD_API_KEY=votre_vraie_clé_api_ici
 GOOGLE_CLIENT_ID=votre_client_id_google
 GOOGLE_CLIENT_SECRET=votre_client_secret_google
 
-# JWT Secret (générez une clé forte)
-JWT_SECRET_KEY=générez_une_clé_sécurisée_min_32_caractères
-
-# Mot de passe PostgreSQL (changez en production)
-POSTGRES_PASSWORD=changez_ce_mot_de_passe_en_production
+# JWT Secret (clé sécurisée)
+JWT_SECRET_KEY=votre_clé_jwt_min_32_caractères
 ```
 
 ### 2. Lancer tous les services
 
 ```bash
-# Construction et lancement de tous les services
+# Construction et lancement
 docker-compose up --build
 
 # Ou en mode détaché (arrière-plan)
@@ -54,7 +76,6 @@ docker-compose ps
 
 # Logs d'un service spécifique
 docker-compose logs -f backend
-docker-compose logs -f postgres
 docker-compose logs -f frontend
 ```
 
@@ -63,16 +84,13 @@ docker-compose logs -f frontend
 - **Frontend** : http://localhost:3000
 - **Backend API** : http://localhost:8000
 - **API Docs (Swagger)** : http://localhost:8000/docs
-- **PostgreSQL** : localhost:5432
+- **PostgreSQL** : AWS RDS (endpoint configuré dans .env)
 
 ### 5. Commandes Utiles
 
 ```bash
 # Arrêter tous les services
 docker-compose down
-
-# Arrêter et supprimer les volumes (⚠️ perte de données)
-docker-compose down -v
 
 # Reconstruire un service spécifique
 docker-compose build backend
@@ -85,12 +103,11 @@ docker-compose logs -f
 
 # Exécuter une commande dans un container
 docker-compose exec backend bash
-docker-compose exec postgres psql -U postgres -d ai_code_mentor
 ```
 
-### 6. Initialiser la Base de Données
+### 6. Initialiser la Base de Données (si nécessaire)
 
-Si nécessaire, exécutez les migrations Alembic :
+Exécutez les migrations Alembic sur AWS RDS :
 
 ```bash
 # Accéder au container backend
@@ -107,26 +124,20 @@ docker-compose exec backend alembic upgrade head
 
 ### Services
 
-1. **postgres** : Base de données PostgreSQL 16
-   - Port : 5432
-   - Volume persistant : `postgres_data`
-   - Healthcheck : `pg_isready`
-
-2. **backend** : FastAPI + Uvicorn
+1. **backend** : FastAPI + Uvicorn
    - Port : 8000
-   - Dépend de : postgres (attend qu'il soit healthy)
-   - Healthcheck : `/docs` endpoint
+   - Connexion à PostgreSQL AWS RDS via SSL
+   - Healthcheck : `curl -f http://localhost:8000/docs`
 
-3. **frontend** : React + Vite + Nginx
+2. **frontend** : React + Vite + Nginx
    - Port : 3000 (mappé sur 80 interne)
    - Dépend de : backend (attend qu'il soit healthy)
+   - Proxy les requêtes API vers le backend
 
 ### Ordre de Démarrage
 
 ```
-postgres (démarre)
-    ↓ (attend healthcheck)
-backend (démarre quand postgres est prêt)
+backend (démarre et se connecte à AWS RDS)
     ↓ (attend healthcheck)
 frontend (démarre quand backend est prêt)
 ```
@@ -137,15 +148,32 @@ frontend (démarre quand backend est prêt)
 
 ```bash
 # Vérifier quel process utilise le port
-lsof -i :8000  # ou :3000 ou :5432
+lsof -i :8000  # ou :3000
 
 # Arrêter le process ou changer le port dans docker-compose.yml
 ```
 
-### Erreur : "connection refused" depuis le backend
+### Erreur : "connection refused" depuis le backend vers RDS
 
-- Vérifiez que `POSTGRES_HOST=postgres` dans `.env` (nom du service)
-- Vérifiez que PostgreSQL est démarré : `docker-compose ps`
+1. Vérifiez les credentials dans `.env` :
+   - `POSTGRES_HOST` doit être l'endpoint AWS RDS complet
+   - `POSTGRES_USER` et `POSTGRES_PASSWORD` doivent être corrects
+
+2. Vérifiez les Security Groups AWS RDS :
+   - Le port 5432 doit être ouvert depuis votre IP
+   - Ou depuis 0.0.0.0/0 (uniquement en développement)
+
+3. Vérifiez que le backend a accès internet pour joindre AWS
+
+### Erreur SSL avec PostgreSQL
+
+La connexion SSL est **requise** pour AWS RDS. Si vous avez une erreur SSL :
+
+```bash
+# Vérifiez que votre .env ne désactive pas SSL
+# La config dans database.py doit avoir :
+# "ssl": "require"
+```
 
 ### Erreur de build
 
@@ -156,34 +184,53 @@ docker system prune -a
 docker-compose up --build
 ```
 
-### Les données PostgreSQL persistent entre les redémarrages
+## 🔐 Sécurité
 
-```bash
-# Pour supprimer toutes les données
-docker-compose down -v
+### Variables Sensibles
 
-# Puis relancer
-docker-compose up
-```
+- Le fichier `.env` est **ignoré par git** (via `.gitignore`)
+- Ne commitez **JAMAIS** le fichier `.env` réel
+- Utilisez `.env.example` comme template
+
+### AWS RDS
+
+- Utilisez des **Security Groups** restrictifs
+- Activez les **backups automatiques**
+- Surveillez les **logs CloudWatch**
+- Utilisez **IAM Authentication** en production (optionnel)
 
 ## 📝 Notes de Production
 
-Pour déployer en production, modifiez :
+Pour déployer en production :
 
-1. `.env` :
+1. **Variables d'environnement** (`.env`) :
    - `ENVIRONMENT=production`
    - `DEBUG=False`
-   - Mots de passe forts
-   - Vraies clés API
+   - Mots de passe forts et complexes
+   - Vraies clés API de production
+   - Endpoint RDS de production
 
-2. `backend/app/config/database.py` :
-   - Décommentez `"ssl": "require"` pour AWS RDS
+2. **AWS RDS** :
+   - Utilisez Multi-AZ pour haute disponibilité
+   - Activez les backups automatiques
+   - Configurez les Security Groups strictement
+   - Surveillez les métriques CloudWatch
 
-3. `docker-compose.yml` :
+3. **Docker Compose** :
    - Utilisez des secrets Docker au lieu d'env_file
-   - Ajoutez des limites de ressources
+   - Ajoutez des limites de ressources (memory, cpu)
    - Configurez un reverse proxy (Traefik, Nginx)
+   - Activez HTTPS avec Let's Encrypt
+
+4. **Backend** :
+   - Utilisez Gunicorn + Uvicorn workers
+   - Configurez le logging vers CloudWatch
+   - Activez le monitoring (Sentry, DataDog, etc.)
 
 ## 🎉 C'est Prêt !
 
-Votre stack Docker est maintenant correctement configurée et devrait démarrer sans erreurs.
+Votre stack Docker est maintenant correctement configurée pour :
+- ✅ Backend FastAPI connecté à AWS RDS
+- ✅ Frontend React servi par Nginx
+- ✅ Configuration SSL sécurisée
+- ✅ CORS correctement configuré
