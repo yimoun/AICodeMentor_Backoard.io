@@ -76,7 +76,6 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
   showSkillsProgress = true,
   onBuyCredits,
   onSkillClick,
-  onLogout,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -124,7 +123,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
       {/* Header avec info utilisateur */}
       <SidebarHeader>
         <UserInfo
-          userName={userName}
+          name={userName}
           initials={userInitials}
           plan={userPlan}
           onAvatarClick={handleAvatarClick}

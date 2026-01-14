@@ -5,7 +5,6 @@ import {
   BadgeVisual,
   BadgeEmoji,
   BadgeCount,
-//   BadgeProgressIndicator,
   BadgeName,
 } from '../../../styles/badges/BadgesStyles';
 import BadgeProgressIndicator from './BadgeProgressIndicator';
@@ -40,7 +39,7 @@ interface BadgeItemProps {
  * Item de badge individuel
  */
 const BadgeItem: React.FC<BadgeItemProps> = ({ badge, onClick }) => {
-  const { id, icon, name, status, count, progress, tooltip, isRare } = badge;
+  const { id, icon, name, status, count, progress, tooltip } = badge;
 
   const handleClick = () => {
     if (onClick) {

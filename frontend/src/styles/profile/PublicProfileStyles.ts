@@ -31,7 +31,7 @@ export const PublicProfileContainer = styled(Box)(({ theme }) => ({
 }));
 
 /* ==================== BANNER ==================== */
-export const ProfileBanner = styled(Box)(({ theme }) => ({
+export const ProfileBanner = styled(Box)(() => ({
   position: 'relative',
   height: 280,
   background: `linear-gradient(135deg, ${colors.mcgillRed} 0%, #8B0000 100%)`,

@@ -10,7 +10,7 @@ import useUser from '../hooks/useUser';
  */
 const OnboardingContent: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, isLoading: isUserLoading, completeOnboarding, hasCompletedOnboarding } = useUser();
+  const { isAuthenticated, isLoading: isUserLoading, completeOnboarding, hasCompletedOnboarding } = useUser();
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +44,7 @@ const OnboardingContent: React.FC = () => {
 
     try {
       // Envoyer les données au backend
-      const response = await UserDS.completeOnboarding({
+      await UserDS.completeOnboarding({
         first_name: data.profile.firstName,
         last_name: data.profile.lastName,
         age: data.profile.age ? parseInt(data.profile.age) : undefined,

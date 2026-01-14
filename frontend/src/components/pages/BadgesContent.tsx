@@ -139,10 +139,7 @@ const BadgesContent: React.FC = () => {
   const navigate = useNavigate();
   
   // Contextes
-  const { user } = useUser();
   // const { credits, streakDays } = useAppContext();
-  
-  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   /**
    * Stats calculées depuis les contextes

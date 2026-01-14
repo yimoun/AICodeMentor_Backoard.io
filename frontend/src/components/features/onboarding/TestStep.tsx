@@ -151,7 +151,6 @@ const TestStep: React.FC<TestStepProps> = ({
   questions,
   timePerQuestion = 120,
   onComplete,
-  onBack,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);

@@ -135,7 +135,7 @@ const DashboardContent: React.FC = () => {
   /**
    * Réviser un topic
    */
-  const handleReview = (topicId: string) => {
+  const handleReview = () => {
     navigate('/app/chat');
   };
 
@@ -149,7 +149,7 @@ const DashboardContent: React.FC = () => {
   /**
    * Clic sur un badge
    */
-  const handleBadgeClick = (badgeId: string) => {
+  const handleBadgeClick = () => {
     navigate('/app/badges');
   };
 

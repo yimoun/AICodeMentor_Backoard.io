@@ -531,7 +531,7 @@ export const DailyGoalBtn = styled("button", {
 }));
 
 /* ==================== TEST ==================== */
-export const TestContainer = styled(Box)(({ theme }) => ({
+export const TestContainer = styled(Box)(() => ({
   maxWidth: 800,
   margin: "0 auto",
 }));
@@ -822,7 +822,7 @@ export const TestActions = styled(Box)({
 });
 
 /* ==================== RESULTS ==================== */
-export const ResultsContainer = styled(Box)(({ theme }) => ({
+export const ResultsContainer = styled(Box)(() => ({
   maxWidth: 1000,
   margin: "0 auto",
 }));

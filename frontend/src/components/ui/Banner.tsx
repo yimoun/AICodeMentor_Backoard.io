@@ -1,14 +1,12 @@
-import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppBar, Button, Container, Link, Toolbar, Typography, Modal, Box, IconButton } from "@mui/material";
-import { FaGithub, FaLinkedin, FaTwitter, FaPhone, FaEnvelope, FaMapMarkerAlt, FaTimes, FaExternalLinkAlt } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaTwitter, FaPhone, FaEnvelope } from "react-icons/fa";
 import { useState } from "react";
 
 function Banner() {
   const navigate = useNavigate();
 
   const handleHomeClick = () => navigate("/");
-  const handleLoginClick = () => navigate("/login/");
   const [teamModalOpen, setTeamModalOpen] = useState(false);
 
   // Données des membres

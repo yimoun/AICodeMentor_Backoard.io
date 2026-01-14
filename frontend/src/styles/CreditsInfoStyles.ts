@@ -78,7 +78,7 @@ export const CreditAction = styled(Typography)(({ theme }) => ({
 }));
 
 
-export const CreditCost = styled(Typography)(({ theme }) => ({
+export const CreditCost = styled(Typography)(() => ({
   fontWeight: 700,
    color: '#ED1B2F',
   fontSize: '1rem',
@@ -95,7 +95,7 @@ export const CreditsNote = styled(Typography)(({ theme }) => ({
 }));
 
 
-export const CreditsLink = styled(Link)(({ theme }) => ({
+export const CreditsLink = styled(Link)(() => ({
   color: '#ED1B2F',
   textDecoration: 'none',
   fontWeight: 500,

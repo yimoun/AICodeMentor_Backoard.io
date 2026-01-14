@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Link, Box } from "@mui/material";
+import { Link } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 // Composants
@@ -283,7 +283,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
         email={registeredEmail}
         open={showVerificationModal}
         onVerified={handleEmailVerified}
-        redirectTo={redirectAfterVerification}
+        redirectTo="/dashboard"
       />
 
       {/* Backdrop de chargement */}

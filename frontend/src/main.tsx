@@ -7,7 +7,6 @@ import UserProvider from "./components/contexts/UserProvider";
 
 // Components
 import NotFound from "./components/NotFound";
-import ProtectedRoutes from "./components/ProtectedRoutes";
 
 // Pages publiques
 import HomePage from "./components/pages/HomePage";

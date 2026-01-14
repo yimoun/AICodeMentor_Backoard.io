@@ -58,7 +58,7 @@ export const NavItemContainer = styled(ListItemButton, {
 /**
  * Icône de navigation
  */
-export const NavIcon = styled('span')(({ theme }) => ({
+export const NavIcon = styled('span')(() => ({
   fontSize: '1.25rem',
   lineHeight: 1,
   display: 'flex',
@@ -72,7 +72,7 @@ export const NavIcon = styled('span')(({ theme }) => ({
 /**
  * Texte de navigation
  */
-export const NavText = styled(Typography)(({ theme }) => ({
+export const NavText = styled(Typography)(() => ({
   fontWeight: 500,
   fontSize: '0.875rem',
   flex: 1,

@@ -44,7 +44,7 @@ export const PricingTitle = styled(Typography)(({ theme }) => ({
 /**
  * Texte highlight dans le titre
  */
-export const PricingHighlight = styled('span')(({ theme }) => ({
+export const PricingHighlight = styled('span')(() => ({
   color: '#ED1B2F',
 }));
 
@@ -315,7 +315,7 @@ export const PlanCredits = styled(Box)(({ theme }) => ({
 /**
  * Nombre de crédits
  */
-export const CreditsAmount = styled('span')(({ theme }) => ({
+export const CreditsAmount = styled('span')(() => ({
   fontWeight: 700,
   color: '#ED1B2F',
 }));

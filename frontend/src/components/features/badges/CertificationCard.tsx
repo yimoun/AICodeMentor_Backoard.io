@@ -11,8 +11,6 @@ import {
   CertTitle,
   CertDescription,
   CertMeta,
-  CertTopics,
-  TopicTag,
   CertProgress,
   ProgressBar,
   ProgressText,
@@ -79,7 +77,6 @@ const CertificationCard: React.FC<CertificationCardProps> = ({
     date,
     score,
     progress,
-    topics,
   } = certification;
 
   return (

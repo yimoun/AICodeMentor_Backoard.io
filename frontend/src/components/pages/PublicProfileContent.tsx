@@ -126,7 +126,7 @@ const PublicProfileContent: React.FC = () => {
   
   // Contextes
   const { user, getInitials, getFullName } = useUser();
-  const { streakDays, credits } = useAppContext();
+  const { streakDays } = useAppContext();
 
   /**
    * Données utilisateur pour le profil

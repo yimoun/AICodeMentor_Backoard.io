@@ -138,7 +138,7 @@ export const SuccessIcon = styled('span')({
 /**
  * Texte de succès principal
  */
-export const SuccessTitle = styled(Typography)(({ theme }) => ({
+export const SuccessTitle = styled(Typography)(() => ({
   fontWeight: 600,
   fontSize: '1rem',
   color: 'inherit',
@@ -147,7 +147,7 @@ export const SuccessTitle = styled(Typography)(({ theme }) => ({
 /**
  * Texte de succès secondaire
  */
-export const SuccessText = styled(Typography)(({ theme }) => ({
+export const SuccessText = styled(Typography)(() => ({
   fontSize: '0.875rem',
   color: 'inherit',
   opacity: 0.9,

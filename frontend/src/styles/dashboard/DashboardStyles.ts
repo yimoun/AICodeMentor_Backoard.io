@@ -236,14 +236,14 @@ export const CardSubtitle = styled(Typography)(({ theme }) => ({
 /**
  * Card de graphique (span 2 colonnes)
  */
-export const ChartCard = styled(DashboardCard)(({ theme }) => ({
+export const ChartCard = styled(DashboardCard)(() => ({
   // Cette card peut être étendue pour span 2 colonnes si on utilise grid
 }));
 
 /**
  * Container du graphique
  */
-export const ChartPlaceholder = styled(Box)(({ theme }) => ({
+export const ChartPlaceholder = styled(Box)(() => ({
   height: 200,
   display: 'flex',
   alignItems: 'flex-end',

@@ -98,7 +98,7 @@ export const StatIcon = styled(Box)({
   fontSize: '2rem',
 });
 
-export const StatValue = styled(Typography)(({ theme }) => ({
+export const StatValue = styled(Typography)(() => ({
   display: 'block',
   fontSize: '1.5rem',
   fontWeight: 700,
@@ -121,7 +121,7 @@ export const SectionHeader = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2.5),
 }));
 
-export const SectionTitle = styled(Typography)(({ theme }) => ({
+export const SectionTitle = styled(Typography)(() => ({
   fontSize: '1.25rem',
   fontWeight: 700,
 }));

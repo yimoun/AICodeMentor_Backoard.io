@@ -26,7 +26,7 @@ export const StreakIcon = styled('span')({
 /**
  * Nombre de jours de streak
  */
-export const StreakCount = styled(Typography)(({ theme }) => ({
+export const StreakCount = styled(Typography)(() => ({
   fontSize: '1.5rem',
   fontWeight: 800,
   lineHeight: 1,
