@@ -1,5 +1,3 @@
-// Zone principale de chat
-
 import React, { useRef, useEffect } from 'react';
 import { Button } from '../../ui/Button';
 import Message, { type LlmType, type CodeBlockData } from './Messages';
@@ -15,9 +13,7 @@ import {
   MessagesContainer,
 } from '../../../styles/chat/ChatMainStyles';
 
-/**
- * Type pour un message
- */
+
 export interface ChatMessage {
   id: string;
   sender: 'user' | 'assistant';

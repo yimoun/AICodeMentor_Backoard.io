@@ -1,4 +1,5 @@
-import { createContext, useState, useCallback } from "react";
+
+import { createContext, useState } from "react";
 import type IUser from "../../data_interfaces/IUser";
 
 /**
@@ -24,6 +25,7 @@ export interface IUserContext {
   getInitials: () => string;
   getFullName: () => string;
   hasCompletedOnboarding: () => boolean;
+  getPlanLabel: () => string;
 }
 
 /**
@@ -40,62 +42,69 @@ const defaultUserContext: IUserContext = {
   logout: (): void => {},
   updateUser: (): void => {},
   completeOnboarding: (): void => {},
-  getInitials: (): string => "",
+  getInitials: (): string => "?",
   getFullName: (): string => "",
   hasCompletedOnboarding: (): boolean => false,
+  getPlanLabel: (): string => "Plan Gratuit",
 };
 
 /**
  * Hook pour créer l'état du contexte utilisateur
  */
 export const UserContextState = (): IUserContext => {
-  const [userContext, setUserContext] = useState<IUserContext>(defaultUserContext);
+  const [state, setState] = useState<{
+    initialized: boolean;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    user: IUser | null;
+  }>({
+    initialized: false,
+    isAuthenticated: false,
+    isLoading: true,
+    user: null,
+  });
 
   /**
    * Initialiser le contexte avec les données utilisateur
-   * Appelé au chargement de l'app si un token existe
    */
-  userContext.init = (user: IUser): void => {
-    setUserContext((prev) => ({
-      ...prev,
+  const init = (user: IUser): void => {
+    setState({
       initialized: true,
       isAuthenticated: true,
       isLoading: false,
       user: { ...user },
-    }));
+    });
   };
 
   /**
    * Connexion de l'utilisateur
    */
-  userContext.login = (user: IUser): void => {
-    setUserContext((prev) => ({
-      ...prev,
+  const login = (user: IUser): void => {
+    setState({
       initialized: true,
       isAuthenticated: true,
       isLoading: false,
       user: { ...user },
-    }));
+    });
   };
 
   /**
    * Déconnexion de l'utilisateur
    */
-  userContext.logout = (): void => {
-    setUserContext((prev) => ({
-      ...prev,
+  const logout = (): void => {
+    setState({
       initialized: true,
       isAuthenticated: false,
       isLoading: false,
       user: null,
-    }));
+    });
   };
 
   /**
    * Mettre à jour les données utilisateur
    */
-  userContext.updateUser = (updates: Partial<IUser>): void => {
-    setUserContext((prev) => ({
+  const updateUser = (updates: Partial<IUser>): void => {
+    setState((prev) => ({
       ...prev,
       user: prev.user ? { ...prev.user, ...updates } : null,
     }));
@@ -104,8 +113,8 @@ export const UserContextState = (): IUserContext => {
   /**
    * Marquer l'onboarding comme terminé
    */
-  userContext.completeOnboarding = (data: Partial<IUser>): void => {
-    setUserContext((prev) => ({
+  const completeOnboarding = (data: Partial<IUser>): void => {
+    setState((prev) => ({
       ...prev,
       user: prev.user
         ? { ...prev.user, ...data, onboarding_finished: true }
@@ -116,19 +125,27 @@ export const UserContextState = (): IUserContext => {
   /**
    * Obtenir les initiales de l'utilisateur
    */
-  userContext.getInitials = (): string => {
-    const user = userContext.user;
+  const getInitials = (): string => {
+    const user = state.user;
     if (!user) return "?";
 
-    const firstInitial = user.first_name?.charAt(0)?.toUpperCase() || "";
-    const lastInitial = user.last_name?.charAt(0)?.toUpperCase() || "";
+    const firstName = user.first_name || "";
+    const lastName = user.last_name || "";
 
-    if (firstInitial && lastInitial) {
-      return `${firstInitial}${lastInitial}`;
+    if (firstName && lastName) {
+      return `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
+    }
+
+    if (firstName) {
+      return firstName.substring(0, 2).toUpperCase();
     }
 
     if (user.username) {
       return user.username.substring(0, 2).toUpperCase();
+    }
+
+    if (user.email) {
+      return user.email.substring(0, 2).toUpperCase();
     }
 
     return "?";
@@ -137,12 +154,16 @@ export const UserContextState = (): IUserContext => {
   /**
    * Obtenir le nom complet de l'utilisateur
    */
-  userContext.getFullName = (): string => {
-    const user = userContext.user;
+  const getFullName = (): string => {
+    const user = state.user;
     if (!user) return "";
 
     if (user.first_name && user.last_name) {
       return `${user.first_name} ${user.last_name}`;
+    }
+
+    if (user.first_name) {
+      return user.first_name;
     }
 
     return user.username || "";
@@ -151,11 +172,39 @@ export const UserContextState = (): IUserContext => {
   /**
    * Vérifier si l'onboarding est terminé
    */
-  userContext.hasCompletedOnboarding = (): boolean => {
-    return userContext.user?.onboarding_finished ?? false;
+  const hasCompletedOnboarding = (): boolean => {
+    return state.user?.onboarding_finished ?? false;
   };
 
-  return userContext;
+  /**
+   * Obtenir le label du plan
+   */
+  const getPlanLabel = (): string => {
+    const plan = state.user?.plan;
+    switch (plan) {
+      case 'starter':
+        return 'Plan Starter';
+      case 'pro':
+        return 'Plan Pro';
+      case 'enterprise':
+        return 'Plan Enterprise';
+      default:
+        return 'Plan Gratuit';
+    }
+  };
+
+  return {
+    ...state,
+    init,
+    login,
+    logout,
+    updateUser,
+    completeOnboarding,
+    getInitials,
+    getFullName,
+    hasCompletedOnboarding,
+    getPlanLabel,
+  };
 };
 
 /**

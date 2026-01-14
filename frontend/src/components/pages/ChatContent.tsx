@@ -172,6 +172,8 @@ const ChatContent: React.FC = () => {
     // Simuler la réponse du bot
     setIsTyping(true);
     
+    //TODO:Backboard AI integration
+
     // TODO: Appeler l'API pour obtenir la réponse
     setTimeout(() => {
       const cost = 3; // Coût de la réponse

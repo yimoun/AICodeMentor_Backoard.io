@@ -45,6 +45,8 @@ const OnboardingContent: React.FC = () => {
     try {
       // Envoyer les données au backend
       const response = await UserDS.completeOnboarding({
+        first_name: data.profile.firstName,
+        last_name: data.profile.lastName,
         age: data.profile.age ? parseInt(data.profile.age) : undefined,
         experience_years: data.profile.experience,
         learning_style: data.profile.learningStyle,

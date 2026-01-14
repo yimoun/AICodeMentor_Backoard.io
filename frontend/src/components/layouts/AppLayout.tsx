@@ -1,32 +1,17 @@
-import React, { useEffect, useCallback } from 'react';
+
+
+import React, { useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import AppContext, { AppContextState, useAppContext } from '../contexts/AppContext';
-import useUser from '../hooks/useUser';
+import AppContext, { AppContextState } from '../../components/contexts/AppContext';
+import useUser from '../../components/hooks/useUser';
 import ChatSidebar from '../features/chat/ChatSidebar';
 import ProgressBackdrop from '../controls/ProgressBackdrop';
 import { ChatLayoutContainer } from '../../styles/chat/ChatLayoutStyles';
 import UserDS from '../../data_services/UserDS';
 import type { SkillProgressData } from '../features/chat/SkillsProgress';
 
-// Ré-exporter useAppContext pour les imports depuis AppLayout
-export { useAppContext } from '../contexts/AppContext';
 
-/**
- * Items de navigation
- */
-interface NavItemData {
-  icon: string;
-  label: string;
-  href: string;
-}
-
-const navItems: NavItemData[] = [
-  { icon: '💬', label: 'Chat', href: '/app/chat' },
-  { icon: '📊', label: 'Dashboard', href: '/app/dashboard' },
-  { icon: '🏆', label: 'Badges', href: '/app/badges' },
-  { icon: '🌐', label: 'Profil Public', href: '/app/profile' },
-  { icon: '⚙️', label: 'Paramètres', href: '/app/settings' },
-];
+export { useAppContext } from '../../components/contexts/AppContext';
 
 /**
  * Skills par défaut pour la sidebar
@@ -38,8 +23,7 @@ const defaultSidebarSkills: SkillProgressData[] = [
 ];
 
 /**
- * Layout principal de l'application
- * Fournit le contexte de l'app et affiche la sidebar + contenu
+ * Contenu de l'AppLayout (utilise les contextes)
  */
 const AppLayoutContent: React.FC = () => {
   const navigate = useNavigate();
@@ -50,45 +34,34 @@ const AppLayoutContent: React.FC = () => {
     user, 
     isAuthenticated, 
     isLoading: isUserLoading, 
-    getInitials,
-    getFullName,
     hasCompletedOnboarding,
     logout: logoutUser,
   } = useUser();
 
-  const appContext = useAppContext();
-  const { credits, sidebarSkills, init: initApp } = appContext;
+  const appContext = React.useContext(AppContext);
+  const { init: initApp, initialized: isAppInitialized } = appContext;
 
   /**
    * Charger les données de l'app au montage
    */
-  const loadAppData = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      // TODO: Remplacer par un appel API réel
-      // const response = await AppDS.getAppData();
-      
-      // Pour l'instant, utiliser les données par défaut ou celles de l'utilisateur
-      initApp({
-        credits: {
-          current: user.credits || 1847,
-          total: 2000, // Selon le plan
-        },
-        sidebarSkills: defaultSidebarSkills, // TODO: Charger depuis l'API
-        streakDays: 7, // TODO: Charger depuis l'API
-        unreadNotifications: 0,
-      });
-    } catch (error) {
-      console.error('Failed to load app data:', error);
-    }
-  }, [user, initApp]);
-
   useEffect(() => {
-    if (isAuthenticated && user) {
-      loadAppData();
-    }
-  }, [isAuthenticated, user, loadAppData]);
+    // Attendre que l'utilisateur soit chargé
+    if (isUserLoading || !isAuthenticated || !user) return;
+    
+    // Ne pas réinitialiser si déjà fait
+    if (isAppInitialized) return;
+
+    // Initialiser les données de l'app
+    initApp({
+      credits: {
+        current: user.credits || 1847,
+        total: 2000,
+      },
+      sidebarSkills: defaultSidebarSkills,
+      streakDays: 7,
+      unreadNotifications: 0,
+    });
+  }, [isUserLoading, isAuthenticated, user, isAppInitialized, initApp]);
 
   /**
    * Protection des routes
@@ -99,6 +72,7 @@ const AppLayoutContent: React.FC = () => {
 
     // Si non authentifié, rediriger vers login
     if (!isAuthenticated) {
+      console.log('🔒 Not authenticated, redirecting to /login');
       navigate('/login', { 
         replace: true,
         state: { from: location }
@@ -108,6 +82,7 @@ const AppLayoutContent: React.FC = () => {
 
     // Si onboarding pas terminé, rediriger vers onboarding
     if (!hasCompletedOnboarding()) {
+      console.log('📋 Onboarding not finished, redirecting to /onboarding');
       navigate('/onboarding', { replace: true });
       return;
     }
@@ -150,54 +125,23 @@ const AppLayoutContent: React.FC = () => {
     return <ProgressBackdrop open={true} />;
   }
 
-  // Données pour la sidebar
-  const userData = {
-    name: getFullName() || user?.username || 'Utilisateur',
-    initials: getInitials(),
-    plan: getPlanLabel(user?.plan),
-  };
-
-  const creditsData = {
-    current: credits.current,
-    total: credits.total,
-  };
-
   return (
     <ChatLayoutContainer>
+      {/* Sidebar - utilise automatiquement les contextes */}
       <ChatSidebar
-        user={userData}
-        credits={creditsData}
-        skills={sidebarSkills.length > 0 ? sidebarSkills : defaultSidebarSkills}
-        streakCount={appContext.streakDays}
-        showStreak={true}
-        showSkillsProgress={true}
-        navItems={navItems}
         onBuyCredits={handleBuyCredits}
+        onLogout={handleLogout}
         onSkillClick={handleSkillClick}
       />
+      
+      {/* Contenu de la page */}
       <Outlet />
     </ChatLayoutContainer>
   );
 };
 
 /**
- * Obtenir le label du plan
- */
-const getPlanLabel = (plan?: string): string => {
-  switch (plan) {
-    case 'starter':
-      return 'Plan Starter';
-    case 'pro':
-      return 'Plan Pro';
-    case 'enterprise':
-      return 'Plan Enterprise';
-    default:
-      return 'Plan Gratuit';
-  }
-};
-
-/**
- * Layout wrapper avec AppContext Provider
+ * Layout principal avec AppContext Provider
  */
 const AppLayout: React.FC = () => {
   const appContext = AppContextState();

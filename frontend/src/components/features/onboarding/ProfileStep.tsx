@@ -27,6 +27,8 @@ export type LearningStyleType = 'visual' | 'reading' | 'hands_on';
  * Données du profil utilisateur
  */
 export interface ProfileStepData {
+  firstName: string;
+  lastName: string;
   age: string;
   experience: string;
   learningStyle: LearningStyleType;
@@ -87,6 +89,8 @@ const ProfileStep: React.FC<ProfileStepProps> = ({
   onNext,
 }) => {
   const [formData, setFormData] = useState<ProfileStepData>({
+    firstName: initialData?.firstName || '',
+    lastName: initialData?.lastName || '',
     age: initialData?.age || '',
     experience: initialData?.experience || '0',
     learningStyle: initialData?.learningStyle || 'reading',
@@ -121,6 +125,29 @@ const ProfileStep: React.FC<ProfileStepProps> = ({
         Ces informations nous aident à personnaliser votre expérience
       </CardDescription>
 
+      {/* Prénom et Nom */}
+      <FormRow>
+        <FormGroup>
+          <FormLabel htmlFor="first-name">Prénom</FormLabel>
+          <FormInput
+            id="first-name"
+            type="text"
+            placeholder="Jean"
+            value={formData.firstName}
+            onChange={(e) => handleChange('firstName', e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <FormLabel htmlFor="last-name">Nom</FormLabel>
+          <FormInput
+            id="last-name"
+            type="text"
+            placeholder="Dupont"
+            value={formData.lastName}
+            onChange={(e) => handleChange('lastName', e.target.value)}
+          />
+        </FormGroup>
+      </FormRow>
 
       {/* Âge et Expérience */}
       <FormRow>

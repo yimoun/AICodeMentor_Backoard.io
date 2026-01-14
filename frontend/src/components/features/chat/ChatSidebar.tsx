@@ -1,7 +1,9 @@
-// Sidebar complète pour le chat, incluant la liste des conversations et les options de l'utilisateur
+
 
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import useUser from '../../hooks/useUser';
+import { useAppContext } from '../../layouts/AppLayout';
 import UserInfo from './UserInfo';
 import CreditsWidget from './CreditsWidget';
 import SkillsProgress, { type SkillProgressData } from './SkillsProgress';
@@ -22,33 +24,7 @@ export interface NavItemData {
   badge?: number;
 }
 
-/**
- * Type pour les données utilisateur
- */
-export interface UserData {
-  name: string;
-  initials?: string;
-  plan: string;
-  avatarUrl?: string;
-}
-
-/**
- * Type pour les données de crédits
- */
-export interface CreditsData {
-  current: number;
-  total: number;
-}
-
 interface ChatSidebarProps {
-  /** Données utilisateur */
-  user: UserData;
-  /** Données des crédits */
-  credits: CreditsData;
-  /** Skills avec progression */
-  skills?: SkillProgressData[];
-  /** Nombre de jours de streak */
-  streakCount?: number;
   /** Items de navigation personnalisés */
   navItems?: NavItemData[];
   /** Afficher le widget de streak */
@@ -59,46 +35,99 @@ interface ChatSidebarProps {
   onBuyCredits?: () => void;
   /** Callback au clic sur un skill */
   onSkillClick?: (skillId: string) => void;
+  /** Callback au clic sur logout */
+  onLogout?: () => void;
 }
 
 /**
  * Navigation par défaut
  */
 const defaultNavItems: NavItemData[] = [
-  { icon: '💬', label: 'Chat', href: '/chat' },
-  { icon: '📊', label: 'Dashboard', href: '/dashboard' },
-  { icon: '📚', label: 'Mes skills', href: '/skills' },
-  { icon: '🏆', label: 'Badges', href: '/badges' },
-  { icon: '⚙️', label: 'Paramètres', href: '/settings' },
+  { icon: '💬', label: 'Chat', href: '/app/chat' },
+  { icon: '📊', label: 'Dashboard', href: '/app/dashboard' },
+  { icon: '🏆', label: 'Badges', href: '/app/badges' },
+  { icon: '🌐', label: 'Profil Public', href: '/app/profile' },
+  { icon: '⚙️', label: 'Paramètres', href: '/app/settings' },
 ];
 
 /**
+ * Obtenir le label du plan
+ */
+const getPlanLabel = (plan?: string): string => {
+  switch (plan) {
+    case 'starter':
+      return 'Plan Starter';
+    case 'pro':
+      return 'Plan Pro';
+    case 'enterprise':
+      return 'Plan Enterprise';
+    default:
+      return 'Plan Gratuit';
+  }
+};
+
+/**
  * Sidebar du chat avec tous les widgets
+ * Utilise automatiquement UserContext et AppContext
  */
 const ChatSidebar: React.FC<ChatSidebarProps> = ({
-  user,
-  credits,
-  skills = [],
-  streakCount = 0,
   navItems = defaultNavItems,
   showStreak = true,
   showSkillsProgress = true,
   onBuyCredits,
   onSkillClick,
+  onLogout,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // ✅ Récupérer les données depuis les contextes
+  const { user, getInitials, getFullName } = useUser();
+  const { credits, sidebarSkills, streakDays } = useAppContext();
+
+  // Données utilisateur depuis le contexte
+  const userName = getFullName() || user?.username || 'Utilisateur';
+  const userInitials = getInitials() || '?';
+  const userPlan = getPlanLabel(user?.plan);
+
+  /**
+   * Navigation vers les paramètres
+   */
+  const handleAvatarClick = () => {
+    navigate('/app/settings');
+  };
+
+  /**
+   * Acheter des crédits
+   */
+  const handleBuyCredits = () => {
+    if (onBuyCredits) {
+      onBuyCredits();
+    } else {
+      navigate('/app/settings');
+    }
+  };
+
+  /**
+   * Clic sur un skill
+   */
+  const handleSkillClick = (skillId: string) => {
+    if (onSkillClick) {
+      onSkillClick(skillId);
+    } else {
+      navigate(`/app/chat?skill=${skillId}`);
+    }
+  };
 
   return (
     <ChatSidebarContainer>
       {/* Header avec info utilisateur */}
       <SidebarHeader>
         <UserInfo
-          name={user.name}
-          initials={user.initials}
-          plan={user.plan}
-          avatarUrl={user.avatarUrl}
-          onAvatarClick={() => navigate('/settings')}
+          userName={userName}
+          initials={userInitials}
+          plan={userPlan}
+          onAvatarClick={handleAvatarClick}
         />
       </SidebarHeader>
 
@@ -106,7 +135,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
       <CreditsWidget
         current={credits.current}
         total={credits.total}
-        onBuyClick={onBuyCredits}
+        onBuyClick={handleBuyCredits}
       />
 
       {/* Navigation */}
@@ -117,23 +146,23 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({
             icon={item.icon}
             label={item.label}
             href={item.href}
-            active={location.pathname === item.href}
+            active={location.pathname === item.href || location.pathname.startsWith(item.href + '/')}
             badge={item.badge}
           />
         ))}
       </SidebarNav>
 
       {/* Progression des skills */}
-      {showSkillsProgress && skills.length > 0 && (
+      {showSkillsProgress && sidebarSkills.length > 0 && (
         <SkillsProgress
-          skills={skills}
-          onSkillClick={onSkillClick}
+          skills={sidebarSkills}
+          onSkillClick={handleSkillClick}
         />
       )}
 
       {/* Widget streak */}
-      {showStreak && streakCount > 0 && (
-        <StreakWidget count={streakCount} />
+      {showStreak && streakDays > 0 && (
+        <StreakWidget count={streakDays} />
       )}
     </ChatSidebarContainer>
   );

@@ -1,7 +1,8 @@
+
+
 import React, { useEffect, useCallback } from "react";
 import UserContext, { UserContextState } from "./UserContext";
-import UserDS from "../../data_services/UserDS";
-import { getLocalToken } from "../../data_services/CustomAxios";
+import UserDS, { getLocalToken } from "../../data_services/UserDS";
 
 interface UserProviderProps {
   children: React.ReactNode;
@@ -19,20 +20,28 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
    * Vérifie si un token existe et récupère les données utilisateur
    */
   const initializeUser = useCallback(async () => {
+    console.log("🔄 [UserProvider] Initializing user...");
+
     const token = getLocalToken();
 
     if (!token) {
-      // Pas de token, utilisateur non connecté
+      console.log("❌ [UserProvider] No token found, user not authenticated");
       userContext.logout();
       return;
     }
 
     try {
-      // Token présent, récupérer les données utilisateur
+      console.log("🔑 [UserProvider] Token found, fetching user data...");
+      
+      // Récupérer les données utilisateur via UserDS
       const response = await UserDS.get();
-      userContext.init(response.data);
+      const user = response.data;
+      
+      console.log("✅ [UserProvider] User loaded:", user);
+      userContext.init(user);
+      
     } catch (error) {
-      console.error("Failed to initialize user:", error);
+      console.error("❌ [UserProvider] Failed to initialize user:", error);
       // Token invalide ou expiré
       userContext.logout();
     }

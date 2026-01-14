@@ -1,36 +1,72 @@
+
+export type PlanType = 'free' | 'starter' | 'pro' | 'enterprise';
+
+
+export type LearningStyleType = 'visual' | 'reading' | 'hands_on';
+
+/**
+ * Interface utilisateur complète
+ */
 export default interface IUser {
-  // Identifiants
+  // ============================================
+  // IDENTIFIANTS
+  // ============================================
   id?: number;
   username?: string;
   email?: string;
   
-  // Informations personnelles
+  // ============================================
+  // INFORMATIONS PERSONNELLES
+  // ============================================
   first_name?: string;
   last_name?: string;
   age?: number;
+  avatar_url?: string;
   
-  // Authentification
+  // ============================================
+  // AUTHENTIFICATION
+  // ============================================
   password?: string;
   confirmation_password?: string;
   
-  // Statut
+  // ============================================
+  // STATUT
+  // ============================================
   email_verified?: boolean;
   onboarding_finished?: boolean;
+  is_active?: boolean;
   
-  // Préférences d'apprentissage
+  // ============================================
+  // PRÉFÉRENCES D'APPRENTISSAGE
+  // ============================================
   experience_years?: string;
-  learning_style?: 'visual' | 'reading' | 'hands_on';
+  learning_style?: LearningStyleType;
   daily_goal_minutes?: number;
   
-  // Skills et objectifs
+  // ============================================
+  // SKILLS ET OBJECTIFS
+  // ============================================
   selected_skills?: string[];
   goals?: string[];
   
-  // Plan et crédits
-  plan?: 'free' | 'starter' | 'pro' | 'enterprise';
+  // ============================================
+  // PLAN ET CRÉDITS
+  // ============================================
+  plan?: PlanType;
   credits?: number;
   
-  // Métadonnées
+  // ============================================
+  // STATISTIQUES
+  // ============================================
+  streak_days?: number;
+  total_xp?: number;
+  total_questions?: number;
+  
+  // ============================================
+  // MÉTADONNÉES
+  // ============================================
   created_at?: string;
   updated_at?: string;
+  last_login?: string;
 }
+

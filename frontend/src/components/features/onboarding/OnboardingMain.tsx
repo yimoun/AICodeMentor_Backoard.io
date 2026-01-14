@@ -119,14 +119,20 @@ const OnboardingMain: React.FC<OnboardingMainProps> = ({
    * Terminer l'onboarding
    */
   const handleStartMentoring = () => {
-    // if (profileData && goalsData) {
-    //   onComplete({
-    //     profile: profileData,
-    //     skills: selectedSkills,
-    //     goals: goalsData,
-    //     testAnswers,
-    //   });
-    // }
+    console.log('Onboarding completed:', {
+      profileData,
+      selectedSkills,
+      goalsData,
+      testAnswers,
+    });
+    if (profileData && goalsData) {
+      onComplete({
+        profile: profileData,
+        skills: selectedSkills,
+        goals: goalsData,
+        testAnswers,
+      });
+    }
 
     //TODO: À metter dans le if ci dessus plus tard
       navigate('/app/chat');
