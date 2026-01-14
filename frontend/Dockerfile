@@ -12,6 +12,7 @@ RUN npm ci --silent
 COPY . .
 RUN npm run build
 
+
 # 2) Production stage - nginx serves the built files
 FROM nginx:stable-alpine
 

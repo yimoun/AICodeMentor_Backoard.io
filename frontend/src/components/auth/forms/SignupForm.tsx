@@ -102,11 +102,16 @@ const SignupForm: React.FC<SignupFormProps> = ({
 
     try {
       // 1. Inscription via UserDS
-      await UserDS.register({
+      const tryUser =  await UserDS.register({
         username: data.username,
         email: data.email,
         password: data.password,
+        first_name: data.first_name,
+        last_name: data.last_name
       });
+
+      console.log(tryUser);
+
 
       console.log("✅ User registered:", data.email);
 
@@ -127,7 +132,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
 
       // Gestion des erreurs
       if (err.response?.status === 409) {
-        setErrorMessage("Un compte avec cet email ou ce nom d'utilisateur existe déjà");
+        setErrorMessage(err.message);
       } else {
         setErrorMessage(err.message || "Une erreur s'est produite. Veuillez réessayer.");
       }

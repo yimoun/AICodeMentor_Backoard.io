@@ -27,7 +27,7 @@ const CustomAxios = axios.create({
 })
 
 
-/*tocke les tokens d'accès et d'actualisation, ainsi que le nom de l'utilisateur, dans le localStorage. 
+/*stocke les tokens d'accès et d'actualisation, ainsi que le nom de l'utilisateur, dans le localStorage.
 Met également à jour l'en-tête Authorization de l'instance Axios. */
 export const setLocalToken = (authData: IAuthResponse): void => {
   localStorage.setItem(storageAccessTokenKey, authData.access);
