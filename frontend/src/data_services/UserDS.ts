@@ -1,6 +1,7 @@
 import type { AxiosResponse } from "axios"
 import CustomAxios, { setLocalToken, unsetLocalToken } from "./CustomAxios"
 import type IUser from "../data_interfaces/IUser"
+import type OnboardingPayload from "../data_interfaces/IOnboardingPayload"
 
 
 /*Envoie une requête PUT pour modifier le mot de passe de l'utilisateur actuel:Retourne une Promise
@@ -80,6 +81,19 @@ const resendVerificationEmail = (email: string): Promise<AxiosResponse<{ message
   CustomAxios.post("auth/resend-verification-email/", { email })
 )
 
+/**
+ * Données pour compléter l'onboarding
+ */
+
+/**
+ * Complète l'onboarding de l'utilisateur
+ * @param data - Données de l'onboarding
+ * @returns Promise
+ */
+const completeOnboarding = (data: OnboardingPayload): Promise<AxiosResponse<IUser>> => (
+  CustomAxios.post("auth/complete-onboarding/", data)
+)
+
 const UserDS = {
   changePassword,
   get,
@@ -90,6 +104,7 @@ const UserDS = {
   deleteUser,
   checkEmailVerified,
   resendVerificationEmail,
+  completeOnboarding,
 }
 
 export default UserDS;

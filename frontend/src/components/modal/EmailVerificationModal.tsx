@@ -69,7 +69,8 @@ const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
 
     try {
       // Appel au backend pour vérifier le statut
-      const response = await UserDS.checkEmailVerified(email);
+      //TODO
+      //const response = await UserDS.checkEmailVerified(email);
         // if (response.data?.verified === true)
       if ( true) {
         // Email vérifié avec succès

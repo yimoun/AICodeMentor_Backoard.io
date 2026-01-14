@@ -1,38 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ChatSidebar, { type UserData, type CreditsData } from '../features/chat/ChatSidebar';
+import useUser from '../hooks/useUser';
+import { useAppContext } from '../layouts/AppLayout';
 import SettingsMain from '../features/settings/SettingsMain';
 import { type PlanType, type SubscriptionDetail } from '../features/settings/SubscriptionCard';
 import { type CreditPack } from '../features/settings/CreditPacksCard';
 import { type ProfileData } from '../features/settings/ProfileCard';
 import { type PreferenceData } from '../features/settings/PreferencesCard';
-import { ChatLayoutContainer } from '../../styles/chat/ChatLayoutStyles';
-
-/**
- * Données utilisateur par défaut
- */
-const defaultUser: UserData = {
-  name: 'Jordan T.',
-  initials: 'JT',
-  plan: 'Plan Pro',
-};
-
-/**
- * Crédits par défaut
- */
-const defaultCredits: CreditsData = {
-  current: 1847,
-  total: 2000,
-};
-
-/**
- * Détails de l'abonnement par défaut
- */
-const defaultSubscriptionDetails: SubscriptionDetail[] = [
-  { label: 'Plan actuel', value: 'Pro - $19.99/mois' },
-  { label: 'Prochain renouvellement', value: '15 février 2026' },
-  { label: 'Méthode de paiement', value: '•••• 4242' },
-];
+import UserDS from '../../data_services/UserDS';
 
 /**
  * Packs de crédits par défaut
@@ -42,15 +17,6 @@ const defaultCreditPacks: CreditPack[] = [
   { id: 'pack-500', amount: 500, price: 9.99, savings: 'Économisez 33%', popular: true },
   { id: 'pack-1000', amount: 1000, price: 14.99, savings: 'Économisez 50%' },
 ];
-
-/**
- * Données du profil par défaut
- */
-const defaultProfileData: ProfileData = {
-  firstName: 'Jordan',
-  lastName: 'Takam',
-  email: 'jordan@example.com',
-};
 
 /**
  * Préférences par défaut
@@ -77,15 +43,43 @@ const defaultPreferences: PreferenceData[] = [
 ];
 
 /**
- * Page Settings
+ * Page Settings avec contextes
  */
-const SettingsPage: React.FC = () => {
+const SettingsContent: React.FC = () => {
   const navigate = useNavigate();
+  
+  // Contextes
+  const { user, updateUser } = useUser();
+  const { credits, updateCredits } = useAppContext();
   
   // State
   const [preferences, setPreferences] = useState<PreferenceData[]>(defaultPreferences);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  /**
+   * Plan de l'utilisateur
+   */
+  const plan: PlanType = (user?.plan as PlanType) || 'free';
+  const planLabel = getPlanLabel(plan);
+
+  /**
+   * Détails de l'abonnement
+   */
+  const subscriptionDetails = useMemo<SubscriptionDetail[]>(() => [
+    { label: 'Plan actuel', value: `${planLabel} - ${getPlanPrice(plan)}` },
+    { label: 'Prochain renouvellement', value: '15 février 2026' },
+    { label: 'Méthode de paiement', value: '•••• 4242' },
+  ], [plan, planLabel]);
+
+  /**
+   * Données du profil depuis le contexte utilisateur
+   */
+  const profileData = useMemo<ProfileData>(() => ({
+    firstName: user?.first_name || '',
+    lastName: user?.last_name || '',
+    email: user?.email || '',
+  }), [user]);
 
   /**
    * Changer de plan
@@ -109,13 +103,18 @@ const SettingsPage: React.FC = () => {
     setIsPurchasing(true);
     
     try {
+      const pack = defaultCreditPacks.find((p) => p.id === packId);
+      if (!pack) return;
+
       // TODO: Appeler l'API Stripe pour créer une session de paiement
-      console.log('Purchase credits:', packId);
+      console.log('Purchase credits:', packId, pack.amount);
       
-      // Simuler un délai
+      // Simuler un délai et un achat réussi
       await new Promise((resolve) => setTimeout(resolve, 1500));
       
-      // TODO: Rediriger vers Stripe Checkout
+      // ✅ Mettre à jour les crédits via le contexte
+      updateCredits(credits.current + pack.amount);
+      
     } catch (error) {
       console.error('Error purchasing credits:', error);
     } finally {
@@ -130,11 +129,21 @@ const SettingsPage: React.FC = () => {
     setIsSavingProfile(true);
     
     try {
-      // TODO: Appeler l'API pour sauvegarder le profil
-      console.log('Save profile:', data);
+      // Appeler l'API pour sauvegarder le profil
+      await UserDS.save({
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+      });
       
-      // Simuler un délai
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // ✅ Mettre à jour le contexte utilisateur
+      updateUser({
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+      });
+      
+      console.log('Profile saved successfully');
     } catch (error) {
       console.error('Error saving profile:', error);
     } finally {
@@ -157,40 +166,60 @@ const SettingsPage: React.FC = () => {
     
     // Gérer le mode sombre
     if (preferenceId === 'dark-mode') {
-      // TODO: Appliquer le thème sombre
       document.documentElement.setAttribute('data-theme', enabled ? 'dark' : 'light');
     }
   };
 
-  /**
-   * Acheter des crédits depuis la sidebar
-   */
-  const handleBuyCredits = () => {
-    // Scroll vers la section d'achat de crédits
-    const creditsSection = document.querySelector('[data-section="credits"]');
-    creditsSection?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-   
-      <SettingsMain
-        title="Paramètres"
-        plan="pro"
-        planLabel="Pro"
-        subscriptionDetails={defaultSubscriptionDetails}
-        onChangePlan={handleChangePlan}
-        onManagePayment={handleManagePayment}
-        creditPacks={defaultCreditPacks}
-        onPurchaseCredits={handlePurchaseCredits}
-        isPurchasing={isPurchasing}
-        profileData={defaultProfileData}
-        onSaveProfile={handleSaveProfile}
-        isSavingProfile={isSavingProfile}
-        preferences={preferences}
-        onPreferenceChange={handlePreferenceChange}
-      />
-   
+    <SettingsMain
+      title="Paramètres"
+      plan={plan}
+      planLabel={planLabel}
+      subscriptionDetails={subscriptionDetails}
+      onChangePlan={handleChangePlan}
+      onManagePayment={handleManagePayment}
+      creditPacks={defaultCreditPacks}
+      onPurchaseCredits={handlePurchaseCredits}
+      isPurchasing={isPurchasing}
+      profileData={profileData}
+      onSaveProfile={handleSaveProfile}
+      isSavingProfile={isSavingProfile}
+      preferences={preferences}
+      onPreferenceChange={handlePreferenceChange}
+    />
   );
 };
 
-export default SettingsPage;
+/**
+ * Obtenir le label du plan
+ */
+const getPlanLabel = (plan: PlanType): string => {
+  switch (plan) {
+    case 'starter':
+      return 'Starter';
+    case 'pro':
+      return 'Pro';
+    case 'enterprise':
+      return 'Enterprise';
+    default:
+      return 'Gratuit';
+  }
+};
+
+/**
+ * Obtenir le prix du plan
+ */
+const getPlanPrice = (plan: PlanType): string => {
+  switch (plan) {
+    case 'starter':
+      return '$9.99/mois';
+    case 'pro':
+      return '$19.99/mois';
+    case 'enterprise':
+      return '$49.99/mois';
+    default:
+      return 'Gratuit';
+  }
+};
+
+export default SettingsContent;

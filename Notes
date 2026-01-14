@@ -1,15 +1,22 @@
-ChatPage
-└── ChatLayoutContainer
-    ├── ChatSidebar
-    │   ├── UserInfo
-    │   ├── CreditsWidget
-    │   ├── SidebarNav (NavItem)
-    │   ├── SkillsProgress
-    │   └── StreakWidget
-    │
-    └── ChatMain
-        ├── ChatHeaderBar
-        ├── MessagesContainer
-        │   └── Message[]
-        │       └── CodeBlock[]
-        └── ChatInput
+┌─────────────────────────────────────────────────────────────────┐
+│                         main.tsx                                 │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │                    <UserProvider>                          │  │
+│  │                                                            │  │
+│  │  Au montage:                                               │  │
+│  │  1. Vérifie si token existe (getLocalToken())             │  │
+│  │  2. Si oui → UserDS.get() → userContext.init(user)        │  │
+│  │  3. Si non → userContext.logout()                         │  │
+│  │                                                            │  │
+│  │  ┌──────────────────────────────────────────────────────┐ │  │
+│  │  │                   <BrowserRouter>                     │ │  │
+│  │  │                                                       │ │  │
+│  │  │  Tous les composants ont accès à:                     │ │  │
+│  │  │  - user, isAuthenticated, isLoading                   │ │  │
+│  │  │  - login(), logout(), updateUser()                    │ │  │
+│  │  │  - getInitials(), getFullName()                       │ │  │
+│  │  │  - hasCompletedOnboarding()                           │ │  │
+│  │  │                                                       │ │  │
+│  │  └──────────────────────────────────────────────────────┘ │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘

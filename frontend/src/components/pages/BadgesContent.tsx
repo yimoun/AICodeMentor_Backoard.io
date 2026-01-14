@@ -1,19 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import useUser from '../hooks/useUser';
+import { useAppContext } from '../layouts/AppLayout';
 import BadgesMain from '../features/badges/BadgesMain';
 import { type BadgeStatData } from '../features/badges/BadgesStats';
 import { type CertificationData } from '../features/badges/CertificationCard';
 import { type BadgeCategoryData } from '../features/badges/BadgeCategory';
-
-/**
- * Stats par défaut
- */
-const defaultStats: BadgeStatData[] = [
-  { id: 'badges', icon: '🏅', value: 12, label: 'Badges obtenus' },
-  { id: 'certifications', icon: '📜', value: 3, label: 'Certifications' },
-  { id: 'xp', icon: '⭐', value: '2,450', label: 'XP Total' },
-  { id: 'ranking', icon: '📈', value: 'Top 15%', label: 'Classement global' },
-];
 
 /**
  * Certifications par défaut
@@ -141,11 +133,36 @@ const defaultBadgeCategories: BadgeCategoryData[] = [
 ];
 
 /**
- * Contenu de la page Badges (sans sidebar)
+ * Contenu de la page Badges avec contextes
  */
 const BadgesContent: React.FC = () => {
   const navigate = useNavigate();
+  
+  // Contextes
+  const { user } = useUser();
+  // const { credits, streakDays } = useAppContext();
+  
   const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  /**
+   * Stats calculées depuis les contextes
+   */
+  const stats = useMemo<BadgeStatData[]>(() => {
+    // Compter les badges obtenus
+    const earnedBadges = defaultBadgeCategories.reduce((acc, cat) => {
+      return acc + cat.badges.filter((b) => b.status === 'earned').length;
+    }, 0);
+
+    // Compter les certifications
+    const earnedCerts = defaultCertifications.filter((c) => c.status === 'earned').length;
+
+    return [
+      { id: 'badges', icon: '🏅', value: earnedBadges, label: 'Badges obtenus' },
+      { id: 'certifications', icon: '📜', value: earnedCerts, label: 'Certifications' },
+      { id: 'xp', icon: '⭐', value: '2,450', label: 'XP Total' }, // TODO: Calculer depuis l'API
+      { id: 'ranking', icon: '📈', value: 'Top 15%', label: 'Classement global' },
+    ];
+  }, []);
 
   /**
    * Voir le profil public
@@ -159,7 +176,6 @@ const BadgesContent: React.FC = () => {
    */
   const handleShare = () => {
     setShareModalOpen(true);
-    // TODO: Ouvrir le modal de partage
     console.log('Open share modal');
   };
 
@@ -182,7 +198,6 @@ const BadgesContent: React.FC = () => {
    * Télécharger le PDF
    */
   const handleDownloadPdf = (certId: string) => {
-    // TODO: Générer et télécharger le PDF
     console.log('Download PDF for:', certId);
   };
 
@@ -193,7 +208,6 @@ const BadgesContent: React.FC = () => {
     const link = `https://aicodementor.io/cert/${certId}`;
     try {
       await navigator.clipboard.writeText(link);
-      // TODO: Afficher un toast de confirmation
       console.log('Link copied:', link);
     } catch (error) {
       console.error('Failed to copy link:', error);
@@ -212,12 +226,11 @@ const BadgesContent: React.FC = () => {
    */
   const handleBadgeClick = (badgeId: string) => {
     console.log('Badge clicked:', badgeId);
-    // TODO: Ouvrir un modal avec les détails du badge
   };
 
   return (
     <BadgesMain
-      stats={defaultStats}
+      stats={stats}
       certifications={defaultCertifications}
       badgeCategories={defaultBadgeCategories}
       onViewPublicProfile={handleViewPublicProfile}

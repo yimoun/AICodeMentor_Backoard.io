@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { Link } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import React, { useState } from "react";
+import { useNavigate, useLocation, Link as RouterLink } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { Link, Box } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-import FormTextField from '../../controls/FormTextField';
-import ProgressBackdrop from '../../controls/ProgressBackdrop';
-import { Button } from '../../ui/Button';
+// Composants réutilisables
+import FormTextField from "../../controls/FormTextField";
+import ProgressBackdrop from "../../controls/ProgressBackdrop";
+import { Button } from "../../ui/Button";
 
+// Context
+import useUser from "../../hooks/useUser";
+
+// Styles
 import {
   AuthContainer,
   AuthCard,
@@ -16,55 +21,69 @@ import {
   AuthTitle,
   AuthSubtitle,
   AuthForm,
-  ForgotLink,
   AuthFooter,
+  BackLink,
   AuthErrorMessage,
-} from '../../../styles/AuthStyles';
+  ForgotPasswordLink,
+} from "../../../styles/AuthStyles";
+import UserDS from "../../../data_services/UserDS";
 
 /**
  * Types pour le formulaire
  */
 interface LoginFormData {
-  email: string;
+  username: string;
   password: string;
+}
+
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
 }
 
 interface LoginFormProps {
   /** Callback après connexion réussie */
-  onSuccess?: (data: LoginFormData) => void;
+  onSuccess?: () => void;
   /** Callback en cas d'erreur */
   onError?: (error: string) => void;
-  /** URL de redirection après succès */
+  /** URL de redirection par défaut après succès */
   redirectTo?: string;
+  /** URL de redirection si onboarding non terminé */
+  onboardingRedirect?: string;
   /** Titre personnalisé */
   title?: string;
   /** Sous-titre personnalisé */
   subtitle?: string;
   /** Icône du brand (emoji) */
   brandIcon?: string;
-  /** Afficher le lien "Mot de passe oublié" */
-  showForgotPassword?: boolean;
   /** Afficher le lien vers inscription */
   showSignupLink?: boolean;
+  /** Afficher le lien mot de passe oublié */
+  showForgotPassword?: boolean;
   /** Afficher le lien de retour */
   showBackLink?: boolean;
 }
 
 /**
- * Formulaire de connexion
+ * Formulaire de connexion avec vérification du statut d'onboarding
  */
 const LoginForm: React.FC<LoginFormProps> = ({
   onSuccess,
   onError,
-  redirectTo = '/app/chat',
-  title = 'Bon retour !',
-  subtitle = 'Continuez votre apprentissage',
-  brandIcon = '🎓',
-  showForgotPassword = true,
+  redirectTo = "/app/chat",
+  onboardingRedirect = "/onboarding",
+  title = "Bon retour !",
+  subtitle = "Connectez-vous pour continuer votre apprentissage",
+  brandIcon = "🎓",
   showSignupLink = true,
+  showForgotPassword = true,
   showBackLink = true,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login: loginContext } = useUser();
+  
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -74,10 +93,24 @@ const LoginForm: React.FC<LoginFormProps> = ({
     formState: { errors },
   } = useForm<LoginFormData>({
     defaultValues: {
-      email: '',
-      password: '',
+      username: "",
+      password: "",
     },
   });
+
+  /**
+   * Récupérer l'URL de redirection depuis le state
+   */
+  const getRedirectUrl = (onboardingFinished: boolean): string => {
+    // Si l'onboarding n'est pas terminé, rediriger vers l'onboarding
+    if (!onboardingFinished) {
+      return onboardingRedirect;
+    }
+
+    // Sinon, utiliser l'URL de redirection précédente ou par défaut
+    const state = location.state as LocationState;
+    return state?.from?.pathname || redirectTo;
+  };
 
   /**
    * Soumission du formulaire
@@ -87,41 +120,47 @@ const LoginForm: React.FC<LoginFormProps> = ({
     setErrorMessage(null);
 
     try {
-      // TODO: Appel API de connexion
-      // const response = await authService.login(data);
-      
-      // Simulation d'appel API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Connexion (stocke le token)
+      await UserDS.login(data.username, data.password);
 
-      // //à changer plus tard
-      // navigate(redirectTo);
+      // Récupérer les infos de l'utilisateur
+      const userResponse = await UserDS.get();
+      const user = userResponse.data;
 
-      // Succès
+      // ✅ IMPORTANT: Mettre à jour le contexte utilisateur
+      loginContext(user);
+
+      // Déterminer l'URL de redirection
+      const redirectUrl = getRedirectUrl(user.onboarding_finished ?? false);
+
+      console.log("🔍 User onboarding_finished:", user.onboarding_finished);
+      console.log("🧭 Redirecting to:", redirectUrl);
+
+      // Callback de succès si défini
       if (onSuccess) {
-        onSuccess(data);
-      } else {
-        navigate(redirectTo);
+        onSuccess();
       }
-    } catch (error) {
-      const message = error instanceof Error 
-        ? error.message 
-        : 'Une erreur est survenue. Veuillez réessayer.';
-      
-      setErrorMessage(message);
-      
+
+      // Redirection
+      navigate(redirectUrl, { replace: true });
+    } catch (err: any) {
+      console.error("Login error:", err);
+
+      // Gestion des erreurs
+      if (err.response?.status === 401) {
+        setErrorMessage("Nom d'utilisateur ou mot de passe incorrect");
+      } else if (err.response?.status === 403) {
+        setErrorMessage("Votre compte n'est pas encore activé. Veuillez vérifier votre email.");
+      } else {
+        setErrorMessage("Une erreur s'est produite. Veuillez réessayer.");
+      }
+
       if (onError) {
-        onError(message);
+        onError(err.message || "Une erreur s'est produite");
       }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  /**
-   * Navigation vers la page mot de passe oublié
-   */
-  const handleForgotPassword = () => {
-    navigate('/forgot-password');
   };
 
   return (
@@ -135,53 +174,47 @@ const LoginForm: React.FC<LoginFormProps> = ({
         </AuthHeader>
 
         {/* Message d'erreur */}
-        {errorMessage && (
-          <AuthErrorMessage>{errorMessage}</AuthErrorMessage>
-        )}
+        {errorMessage && <AuthErrorMessage>{errorMessage}</AuthErrorMessage>}
 
         {/* Formulaire */}
         <AuthForm onSubmit={handleSubmit(onSubmit)}>
-          {/* Email */}
+          {/* Nom d'utilisateur */}
           <FormTextField
-            label="Adresse email"
-            type="email"
-            placeholder="vous@exemple.com"
-            autoComplete="email"
+            label="Nom d'utilisateur ou email"
+            type="text"
+            placeholder="Entrez votre identifiant"
+            autoComplete="username"
             autoFocus
-            registerReturn={register('email', {
-              required: 'L\'email est requis',
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Adresse email invalide',
-              },
+            registerReturn={register("username", {
+              required: "Le nom d'utilisateur est requis",
             })}
-            errorText={errors.email?.message}
+            errorText={errors.username?.message}
           />
 
           {/* Mot de passe */}
-          <FormTextField
-            label="Mot de passe"
-            type="password"
-            placeholder="Votre mot de passe"
-            autoComplete="current-password"
-            registerReturn={register('password', {
-              required: 'Le mot de passe est requis',
-              minLength: {
-                value: 6,
-                message: 'Le mot de passe doit contenir au moins 6 caractères',
-              },
-            })}
-            errorText={errors.password?.message}
-          />
+          <Box>
+            <FormTextField
+              label="Mot de passe"
+              type="password"
+              placeholder="Entrez votre mot de passe"
+              autoComplete="current-password"
+              registerReturn={register("password", {
+                required: "Le mot de passe est requis",
+              })}
+              errorText={errors.password?.message}
+            />
 
-          {/* Lien mot de passe oublié */}
-          {showForgotPassword && (
-            <ForgotLink onClick={handleForgotPassword}>
-              Mot de passe oublié ?
-            </ForgotLink>
-          )}
+            {/* Lien mot de passe oublié */}
+            {showForgotPassword && (
+              <ForgotPasswordLink>
+                <Link component={RouterLink} to="/forgot-password">
+                  Mot de passe oublié ?
+                </Link>
+              </ForgotPasswordLink>
+            )}
+          </Box>
 
-          {/* Bouton de soumission */}
+          {/* Bouton de connexion */}
           <Button
             type="submit"
             variant="primary"
@@ -189,7 +222,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
             fullWidth
             isLoading={isLoading}
             disabled={isLoading}
-            style={{ marginTop: 24 }}
+            style={{ marginTop: 16 }}
           >
             Se connecter
           </Button>
@@ -198,9 +231,9 @@ const LoginForm: React.FC<LoginFormProps> = ({
         {/* Footer - Lien vers inscription */}
         {showSignupLink && (
           <AuthFooter>
-            Pas encore de compte ?{' '}
+            Pas encore de compte ?{" "}
             <Link component={RouterLink} to="/signup">
-              S'inscrire gratuitement
+              Créer un compte
             </Link>
           </AuthFooter>
         )}
@@ -208,14 +241,14 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
       {/* Lien retour accueil */}
       {showBackLink && (
-        <Link component={RouterLink} to="/" >
+        <Link component={RouterLink} to="/">
           <ArrowBackIcon sx={{ fontSize: 16 }} />
           Retour à l'accueil
         </Link>
       )}
 
       {/* Backdrop de chargement */}
-      <ProgressBackdrop open={isLoading} /> 
+      <ProgressBackdrop open={isLoading} />
     </AuthContainer>
   );
 };

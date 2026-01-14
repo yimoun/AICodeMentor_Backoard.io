@@ -1,98 +1,129 @@
-import React, { useState, createContext, useContext } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import ChatSidebar, { type UserData, type CreditsData, type NavItemData } from '../features/chat/ChatSidebar.tsx';
-import { type SkillProgressData } from '../features/chat/SkillsProgress.tsx';
-import { ChatLayoutContainer } from '../../styles/chat/ChatLayoutStyles.ts';
+import React, { useEffect, useCallback } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import AppContext, { AppContextState, useAppContext } from '../contexts/AppContext';
+import useUser from '../hooks/useUser';
+import ChatSidebar from '../features/chat/ChatSidebar';
+import ProgressBackdrop from '../controls/ProgressBackdrop';
+import { ChatLayoutContainer } from '../../styles/chat/ChatLayoutStyles';
+import UserDS from '../../data_services/UserDS';
+import type { SkillProgressData } from '../features/chat/SkillsProgress';
+
+// Ré-exporter useAppContext pour les imports depuis AppLayout
+export { useAppContext } from '../contexts/AppContext';
 
 /**
- * Type pour le contexte de l'application
+ * Items de navigation
  */
-interface AppContextType {
-  user: UserData;
-  credits: CreditsData; 
-  skills: SkillProgressData[];
-  streakCount: number;
-  updateCredits: (newCredits: Partial<CreditsData>) => void;
-  updateUser: (newUser: Partial<UserData>) => void;
+interface NavItemData {
+  icon: string;
+  label: string;
+  href: string;
 }
 
-/**
- * Contexte de l'application
- */
-const AppContext = createContext<AppContextType | null>(null);
+const navItems: NavItemData[] = [
+  { icon: '💬', label: 'Chat', href: '/app/chat' },
+  { icon: '📊', label: 'Dashboard', href: '/app/dashboard' },
+  { icon: '🏆', label: 'Badges', href: '/app/badges' },
+  { icon: '🌐', label: 'Profil Public', href: '/app/profile' },
+  { icon: '⚙️', label: 'Paramètres', href: '/app/settings' },
+];
 
 /**
- * Hook pour accéder au contexte
+ * Skills par défaut pour la sidebar
  */
-export const useAppContext = () => {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useAppContext must be used within AppLayout');
-  }
-  return context;
-};
-
-/**
- * Données utilisateur par défaut
- */
-const defaultUser: UserData = {
-  name: 'Jordan T.',
-  initials: 'JT',
-  plan: 'Plan Pro',
-};
-
-/**
- * Crédits par défaut
- */
-const defaultCredits: CreditsData = {
-  current: 1847,
-  total: 2000,
-};
-
-/**
- * Skills par défaut
- */
-const defaultSkills: SkillProgressData[] = [
+const defaultSidebarSkills: SkillProgressData[] = [
   { id: 'python', name: 'Python', icon: '🐍', level: 'Intermédiaire', progress: 65 },
   { id: 'fastapi', name: 'FastAPI', icon: '⚡', level: 'Débutant', progress: 25 },
   { id: 'postgresql', name: 'PostgreSQL', icon: '🐘', level: 'Intermédiaire', progress: 55 },
 ];
 
 /**
- * Navigation items
+ * Layout principal de l'application
+ * Fournit le contexte de l'app et affiche la sidebar + contenu
  */
-const navItems: NavItemData[] = [
-  { icon: '💬', label: 'Chat', href: '/app/chat' },
-  { icon: '📊', label: 'Dashboard', href: '/app/dashboard' },
-  { icon: '📚', label: 'Mes skills', href: '/app/skills' },
-  { icon: '🏆', label: 'Badges', href: '/app/badges' },
-  { icon: '⚙️', label: 'Paramètres', href: '/app/settings' },
-];
-
-/**
- * Layout principal de l'application avec sidebar persistante
- */
-const AppLayout: React.FC = () => {
+const AppLayoutContent: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   
-  // State global de l'application
-  const [user, setUser] = useState<UserData>(defaultUser);
-  const [credits, setCredits] = useState<CreditsData>(defaultCredits);
-  const [skills] = useState<SkillProgressData[]>(defaultSkills);
-  const [streakCount] = useState(7);
+  // Contextes
+  const { 
+    user, 
+    isAuthenticated, 
+    isLoading: isUserLoading, 
+    getInitials,
+    getFullName,
+    hasCompletedOnboarding,
+    logout: logoutUser,
+  } = useUser();
+
+  const appContext = useAppContext();
+  const { credits, sidebarSkills, init: initApp } = appContext;
 
   /**
-   * Met à jour les crédits
+   * Charger les données de l'app au montage
    */
-  const updateCredits = (newCredits: Partial<CreditsData>) => {
-    setCredits((prev) => ({ ...prev, ...newCredits }));
-  };
+  const loadAppData = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      // TODO: Remplacer par un appel API réel
+      // const response = await AppDS.getAppData();
+      
+      // Pour l'instant, utiliser les données par défaut ou celles de l'utilisateur
+      initApp({
+        credits: {
+          current: user.credits || 1847,
+          total: 2000, // Selon le plan
+        },
+        sidebarSkills: defaultSidebarSkills, // TODO: Charger depuis l'API
+        streakDays: 7, // TODO: Charger depuis l'API
+        unreadNotifications: 0,
+      });
+    } catch (error) {
+      console.error('Failed to load app data:', error);
+    }
+  }, [user, initApp]);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      loadAppData();
+    }
+  }, [isAuthenticated, user, loadAppData]);
 
   /**
-   * Met à jour l'utilisateur
+   * Protection des routes
    */
-  const updateUser = (newUser: Partial<UserData>) => {
-    setUser((prev) => ({ ...prev, ...newUser }));
+  useEffect(() => {
+    // Attendre que le contexte soit initialisé
+    if (isUserLoading) return;
+
+    // Si non authentifié, rediriger vers login
+    if (!isAuthenticated) {
+      navigate('/login', { 
+        replace: true,
+        state: { from: location }
+      });
+      return;
+    }
+
+    // Si onboarding pas terminé, rediriger vers onboarding
+    if (!hasCompletedOnboarding()) {
+      navigate('/onboarding', { replace: true });
+      return;
+    }
+  }, [isAuthenticated, isUserLoading, hasCompletedOnboarding, navigate, location]);
+
+  /**
+   * Déconnexion
+   */
+  const handleLogout = async () => {
+    try {
+      await UserDS.logout();
+      logoutUser();
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   /**
@@ -109,33 +140,71 @@ const AppLayout: React.FC = () => {
     navigate(`/app/chat?skill=${skillId}`);
   };
 
-  // Valeur du contexte
-  const contextValue: AppContextType = {
-    user,
-    credits,
-    skills,
-    streakCount,
-    updateCredits,
-    updateUser,
+  // Afficher un loader pendant l'initialisation
+  if (isUserLoading) {
+    return <ProgressBackdrop open={true} />;
+  }
+
+  // Ne pas afficher si non authentifié (redirect en cours)
+  if (!isAuthenticated) {
+    return <ProgressBackdrop open={true} />;
+  }
+
+  // Données pour la sidebar
+  const userData = {
+    name: getFullName() || user?.username || 'Utilisateur',
+    initials: getInitials(),
+    plan: getPlanLabel(user?.plan),
+  };
+
+  const creditsData = {
+    current: credits.current,
+    total: credits.total,
   };
 
   return (
-    <AppContext.Provider value={contextValue}>
-      <ChatLayoutContainer>
-        {/* Sidebar persistante */}
-        <ChatSidebar
-          user={user}
-          credits={credits}
-          skills={skills}
-          streakCount={streakCount}
-          navItems={navItems}
-          onBuyCredits={handleBuyCredits}
-          onSkillClick={handleSkillClick}
-        />
+    <ChatLayoutContainer>
+      <ChatSidebar
+        user={userData}
+        credits={creditsData}
+        skills={sidebarSkills.length > 0 ? sidebarSkills : defaultSidebarSkills}
+        streakCount={appContext.streakDays}
+        showStreak={true}
+        showSkillsProgress={true}
+        navItems={navItems}
+        onBuyCredits={handleBuyCredits}
+        onSkillClick={handleSkillClick}
+      />
+      <Outlet />
+    </ChatLayoutContainer>
+  );
+};
 
-        {/* Contenu dynamique (change selon la route) */}
-        <Outlet />
-      </ChatLayoutContainer>
+/**
+ * Obtenir le label du plan
+ */
+const getPlanLabel = (plan?: string): string => {
+  switch (plan) {
+    case 'starter':
+      return 'Plan Starter';
+    case 'pro':
+      return 'Plan Pro';
+    case 'enterprise':
+      return 'Plan Enterprise';
+    default:
+      return 'Plan Gratuit';
+  }
+};
+
+/**
+ * Layout wrapper avec AppContext Provider
+ */
+const AppLayout: React.FC = () => {
+  const appContext = AppContextState();
+
+  return (
+    <AppContext.Provider value={appContext}>
+      <AppLayoutContent />
     </AppContext.Provider>
   );
 };

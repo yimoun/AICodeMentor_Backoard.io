@@ -1,50 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ChatSidebar, { type UserData, type CreditsData } from '../features/chat/ChatSidebar.tsx';
-import DashboardMain, { type StatData, type PeriodType } from '../features/dashboard/DashboardMain.tsx';
-import { type DayData } from '../features/dashboard/ActivityChart.tsx';
-import { type SkillData } from '../features/dashboard/SkillProgressCard.tsx';
-import { type ReviewTopicData } from '../features/dashboard/ReviewListCard.tsx';
-import { type BadgeData } from '../features/dashboard/BadgesCard.tsx';
-import { type UsageData } from '../features/dashboard/CreditsUsageCard.tsx';
-import { type SkillProgressData } from '../features/chat/SkillsProgress.tsx';
-// import { ChatLayoutContainer } from '../styles/chat/ChatLayoutStyles.ts';
-
-/**
- * Données utilisateur par défaut
- */
-const defaultUser: UserData = {
-  name: 'Jordan T.',
-  initials: 'JT',
-  plan: 'Plan Pro',
-};
-
-/**
- * Crédits par défaut
- */
-const defaultCredits: CreditsData = {
-  current: 1847,
-  total: 2000,
-};
-
-/**
- * Skills sidebar par défaut
- */
-const defaultSidebarSkills: SkillProgressData[] = [
-  { id: 'python', name: 'Python', icon: '🐍', level: 'Intermédiaire', progress: 65 },
-  { id: 'fastapi', name: 'FastAPI', icon: '⚡', level: 'Débutant', progress: 25 },
-  { id: 'postgresql', name: 'PostgreSQL', icon: '🐘', level: 'Intermédiaire', progress: 55 },
-];
-
-/**
- * Stats par défaut
- */
-const defaultStats: StatData[] = [
-  { icon: '🔥', value: 7, label: 'Jours de streak', change: '+2 vs semaine dernière', isPositive: true },
-  { icon: '💬', value: 23, label: 'Questions posées', change: '+15%', isPositive: true },
-  { icon: '⏱️', value: '2h 45m', label: "Temps d'apprentissage", change: '+30min', isPositive: true },
-  { icon: '📈', value: '+12%', label: 'Progression globale' },
-];
+import useUser from '../hooks/useUser';
+import { useAppContext } from '../layouts/AppLayout';
+import DashboardMain, { type StatData, type PeriodType } from '../features/dashboard/DashboardMain';
+import { type DayData } from '../features/dashboard/ActivityChart';
+import { type SkillData } from '../features/dashboard/SkillProgressCard';
+import { type ReviewTopicData } from '../features/dashboard/ReviewListCard';
+import { type BadgeData } from '../features/dashboard/BadgesCard';
+import { type UsageData } from '../features/dashboard/CreditsUsageCard';
 
 /**
  * Données d'activité par défaut
@@ -57,15 +20,6 @@ const defaultActivityData: DayData[] = [
   { day: 'Ven', value: 90 },
   { day: 'Sam', value: 70 },
   { day: 'Auj', value: 55, isToday: true },
-];
-
-/**
- * Skills dashboard par défaut
- */
-const defaultDashboardSkills: SkillData[] = [
-  { id: 'python', name: 'Python', icon: '🐍', level: 'intermediate', levelLabel: 'Intermédiaire', currentXp: 650, maxXp: 1000 },
-  { id: 'fastapi', name: 'FastAPI', icon: '⚡', level: 'beginner', levelLabel: 'Débutant', currentXp: 125, maxXp: 500 },
-  { id: 'postgresql', name: 'PostgreSQL', icon: '🐘', level: 'intermediate', levelLabel: 'Intermédiaire', currentXp: 550, maxXp: 1000 },
 ];
 
 /**
@@ -97,11 +51,78 @@ const defaultCreditsUsage: UsageData = {
 };
 
 /**
- * Page Dashboard
+ * Page Dashboard avec contextes
  */
-const DashboardPage: React.FC = () => {
+const DashboardContent: React.FC = () => {
   const navigate = useNavigate();
+  
+  // Contextes
+  const { user } = useUser();
+  const { credits, sidebarSkills, streakDays } = useAppContext();
+  
   const [period, setPeriod] = useState<PeriodType>('week');
+
+  /**
+   * Générer les stats depuis les contextes
+   */
+  const stats = useMemo<StatData[]>(() => [
+    { 
+      icon: '🔥', 
+      value: streakDays || 0, 
+      label: 'Jours de streak', 
+      change: '+2 vs semaine dernière', 
+      isPositive: true 
+    },
+    { 
+      icon: '💬', 
+      value: 23, // TODO: Charger depuis l'API
+      label: 'Questions posées', 
+      change: '+15%', 
+      isPositive: true 
+    },
+    { 
+      icon: '⏱️', 
+      value: '2h 45m', // TODO: Charger depuis l'API
+      label: "Temps d'apprentissage", 
+      change: '+30min', 
+      isPositive: true 
+    },
+    { 
+      icon: '📈', 
+      value: '+12%', 
+      label: 'Progression globale' 
+    },
+  ], [streakDays]);
+
+  /**
+   * Convertir les skills de la sidebar en skills du dashboard
+   */
+  const dashboardSkills = useMemo<SkillData[]>(() => {
+    if (!sidebarSkills || sidebarSkills.length === 0) {
+      // Skills par défaut si aucun n'est chargé
+      return [
+        { id: 'python', name: 'Python', icon: '🐍', level: 'intermediate', levelLabel: 'Intermédiaire', currentXp: 650, maxXp: 1000 },
+        { id: 'fastapi', name: 'FastAPI', icon: '⚡', level: 'beginner', levelLabel: 'Débutant', currentXp: 125, maxXp: 500 },
+        { id: 'postgresql', name: 'PostgreSQL', icon: '🐘', level: 'intermediate', levelLabel: 'Intermédiaire', currentXp: 550, maxXp: 1000 },
+      ];
+    }
+
+    return sidebarSkills.map((skill) => ({
+      id: skill.id,
+      name: skill.name,
+      icon: skill.icon,
+      level: getLevelFromProgress(skill.progress),
+      levelLabel: skill.level,
+      currentXp: Math.round((skill.progress / 100) * 1000),
+      maxXp: 1000,
+    }));
+  }, [sidebarSkills]);
+
+  /**
+   * Calculs des crédits
+   */
+  const creditsUsed = credits.total - credits.current;
+  const creditsRemaining = credits.current;
 
   /**
    * Change la période
@@ -115,54 +136,52 @@ const DashboardPage: React.FC = () => {
    * Réviser un topic
    */
   const handleReview = (topicId: string) => {
-    // TODO: Naviguer vers le chat avec ce topic
-    console.log('Review topic:', topicId);
-    navigate('/chat');
+    navigate('/app/chat');
   };
 
   /**
    * Clic sur un skill
    */
   const handleSkillClick = (skillId: string) => {
-    // TODO: Naviguer vers la page du skill
-    console.log('Skill clicked:', skillId);
+    navigate(`/app/chat?skill=${skillId}`);
   };
 
   /**
    * Clic sur un badge
    */
   const handleBadgeClick = (badgeId: string) => {
-    // TODO: Afficher les détails du badge
-    console.log('Badge clicked:', badgeId);
-  };
-
-  /**
-   * Acheter des crédits
-   */
-  const handleBuyCredits = () => {
-    navigate('/settings');
+    navigate('/app/badges');
   };
 
   return (
-      <DashboardMain
-        title="Dashboard"
-        subtitle="Votre progression cette semaine"
-        period={period}
-        onPeriodChange={handlePeriodChange}
-        stats={defaultStats}
-        activityData={defaultActivityData}
-        skills={defaultDashboardSkills}
-        reviewTopics={defaultReviewTopics}
-        badges={defaultBadges}
-        creditsUsage={defaultCreditsUsage}
-        creditsUsed={153}
-        creditsRemaining={1847}
-        onReview={handleReview}
-        onSkillClick={handleSkillClick}
-        onBadgeClick={handleBadgeClick}
-      />
- 
+    <DashboardMain
+      title={`Bonjour, ${user?.first_name || 'Apprenant'} ! 👋`}
+      subtitle="Votre progression cette semaine"
+      period={period}
+      onPeriodChange={handlePeriodChange}
+      stats={stats}
+      activityData={defaultActivityData}
+      skills={dashboardSkills}
+      reviewTopics={defaultReviewTopics}
+      badges={defaultBadges}
+      creditsUsage={defaultCreditsUsage}
+      creditsUsed={creditsUsed}
+      creditsRemaining={creditsRemaining}
+      onReview={handleReview}
+      onSkillClick={handleSkillClick}
+      onBadgeClick={handleBadgeClick}
+    />
   );
 };
 
-export default DashboardPage;
+/**
+ * Obtenir le niveau depuis le pourcentage de progression
+ */
+const getLevelFromProgress = (progress: number): 'beginner' | 'intermediate' | 'advanced' | 'expert' => {
+  if (progress >= 80) return 'expert';
+  if (progress >= 60) return 'advanced';
+  if (progress >= 30) return 'intermediate';
+  return 'beginner';
+};
+
+export default DashboardContent;

@@ -285,3 +285,20 @@ export const AuthSuccessMessage = styled(Box)(({ theme }) => ({
     color: theme.palette.success.light,
   }),
 }));
+
+
+export const ForgotPasswordLink = styled(Box)(({ theme }) => ({
+  textAlign: 'right',
+  marginTop: theme.spacing(1),
+  
+  '& a': {
+    fontSize: '0.8125rem',
+    color: theme.palette.text.secondary,
+    textDecoration: 'none',
+    
+    '&:hover': {
+      color: theme.palette.primary.main,
+      textDecoration: 'underline',
+    },
+  },
+}));

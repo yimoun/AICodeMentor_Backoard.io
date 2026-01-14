@@ -36,6 +36,10 @@ export const setLocalToken = (authData: IAuthResponse): void => {
   CustomAxios.defaults.headers.Authorization = headerToken + authData.access;
 }
 
+export const getLocalToken = (): string | null => {
+  return localStorage.getItem(storageAccessTokenKey);
+};
+
 /*Supprime les tokens et le nom de l'utilisateur du localStorage. Réinitialise également l'en-tête Authorization de l'instance Axios. */
 export const unsetLocalToken = (): void => {
   localStorage.removeItem(storageAccessTokenKey);
