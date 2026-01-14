@@ -7,7 +7,7 @@ const SignupPage: React.FC = () => {
     <SignupForm
       title="Créez votre compte"
       subtitle="Commencez votre apprentissage gratuitement"
-      redirectTo="/onboarding"
+      redirectAfterVerification="/onboarding"
       showPasswordStrength
       showLoginLink
       showBackLink

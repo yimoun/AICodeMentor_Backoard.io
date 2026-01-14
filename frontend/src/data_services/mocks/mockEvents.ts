@@ -1,4 +1,5 @@
-import IEvent, { EventClassification } from "../../data_interfaces/IEvent";
+import type IEvent from "../../data_interfaces/IEvent";
+import type { EventClassification } from "../../data_interfaces/IEvent";
 
 const classifications: EventClassification[] = [
   "CHEMICAL_SPILL",

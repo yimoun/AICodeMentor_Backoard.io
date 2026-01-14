@@ -679,7 +679,7 @@ export const FooterBrand = styled(Typography)({
   fontWeight: 600,
 });
 
-export const FooterLink = styled(Box)(({ theme }) => ({
+export const FooterLink = styled(Box)(() => ({
   '& a': {
     color: '#FF6B6B',
     textDecoration: 'none',

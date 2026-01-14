@@ -9,7 +9,7 @@ import {
   BarChart,
   Bar,
   BarLabel,
-} from '../../../styles/dashboard/dashboardStyles';
+} from '../../../styles/dashboard/DashboardStyles';
 
 /**
  * Type pour une donnée de jour

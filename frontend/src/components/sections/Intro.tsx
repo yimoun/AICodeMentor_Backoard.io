@@ -99,11 +99,9 @@ const Intro: React.FC<IntroProps> = ({
   ctaPrimaryBadge = '50 crédits offerts',
   ctaPrimaryHref = '/signup',
   ctaSecondaryText = 'Voir les tarifs',
-  ctaSecondaryHref = '/pricing',
   stats = defaultStats,
   previewMessages = defaultPreviewMessages,
   onCtaPrimaryClick,
-  onCtaSecondaryClick,
 }) => {
   const navigate = useNavigate();
 

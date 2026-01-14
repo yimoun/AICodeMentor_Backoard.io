@@ -38,7 +38,7 @@ export const FeaturesTitle = styled(Typography)(({ theme }) => ({
 /**
  * Mot en surbrillance dans le titre (rouge)
  */
-export const FeaturesTitleHighlight = styled('span')(({ theme }) => ({
+export const FeaturesTitleHighlight = styled('span')(() => ({
   color: '#ED1B2F',
 }));
 

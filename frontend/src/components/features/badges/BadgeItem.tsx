@@ -7,7 +7,6 @@ import {
   BadgeCount,
   BadgeName,
 } from '../../../styles/badges/BadgesStyles';
-import BadgeProgressIndicator from './BadgeProgressIndicator';
 
 /**
  * Statut d'un badge
