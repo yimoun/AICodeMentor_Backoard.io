@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  mcp-server:
+    build:
+      context: ./mcp_server
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./mcp_server:/app
+    restart: unless-stopped
+
+  widget:
+    build:
+      context: ./widget
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - mcp-server
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
